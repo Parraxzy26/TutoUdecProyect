@@ -1,4 +1,4 @@
-# Serializers para convertir los modelos en datos JSON para la API
+# Serializers para convertir los modelos en datos JSON para la API.
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from .models import Tutor, Materia, Tutoria
