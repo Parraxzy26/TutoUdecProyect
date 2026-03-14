@@ -1,6 +1,6 @@
 # Backend - Sistema de Tutorías
 
-Este proyecto corresponde al backend del sistema de tutorías.  
+Este proyecto corresponde al backend del sistema de tutorías, implementa una API REST para la gestión de tutorías usando Django REST Framework.
 El backend se encarga de gestionar la información del sistema y exponer servicios web que permiten realizar operaciones sobre los datos.
 
 ## Tecnologías utilizadas
