@@ -1,4 +1,4 @@
-# Modelos de la base de datos para el sistema de tutorías
+# Modelos de la base de datos para el sistema de tutorías.
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator, MaxValueValidator
