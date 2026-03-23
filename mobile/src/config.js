@@ -7,6 +7,8 @@ import { Platform } from 'react-native';
  * - En desarrollo con Expo Go, usa la IP del host (tu PC) automáticamente
  * - Emulador Android: 10.0.2.2
  */
+const DEFAULT_LAN_HOST = '192.168.1.8';
+
 function resolveHost() {
   if (process.env.EXPO_PUBLIC_API_URL) {
     return null;
@@ -19,9 +21,11 @@ function resolveHost() {
     if (host) return host;
   }
   if (Platform.OS === 'android') {
-    return '10.0.2.2';
+    // En muchos casos (dispositivo físico) Expo no expone hostUri en runtime.
+    // Usamos IP LAN por defecto del backend para evitar timeouts de login/registro.
+    return DEFAULT_LAN_HOST;
   }
-  return '127.0.0.1';
+  return DEFAULT_LAN_HOST;
 }
 
 export function getApiBaseUrl() {
