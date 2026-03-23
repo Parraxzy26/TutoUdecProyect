@@ -10,6 +10,10 @@ import { Platform } from 'react-native';
 const DEFAULT_LAN_HOST = '192.168.1.8';
 
 function resolveHost() {
+  const extraUrl = Constants.expoConfig?.extra?.apiUrl;
+  if (typeof extraUrl === 'string' && extraUrl.length > 0) {
+    return null;
+  }
   if (process.env.EXPO_PUBLIC_API_URL) {
     return null;
   }
@@ -21,14 +25,16 @@ function resolveHost() {
     if (host) return host;
   }
   if (Platform.OS === 'android') {
-    // En muchos casos (dispositivo físico) Expo no expone hostUri en runtime.
-    // Usamos IP LAN por defecto del backend para evitar timeouts de login/registro.
     return DEFAULT_LAN_HOST;
   }
   return DEFAULT_LAN_HOST;
 }
 
 export function getApiBaseUrl() {
+  const extraUrl = Constants.expoConfig?.extra?.apiUrl;
+  if (typeof extraUrl === 'string' && extraUrl.length > 0) {
+    return extraUrl.replace(/\/$/, '');
+  }
   const fromEnv = process.env.EXPO_PUBLIC_API_URL;
   if (fromEnv) {
     return fromEnv.replace(/\/$/, '');

@@ -10,155 +10,287 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Image,
+  Pressable,
 } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
+import { C } from '../../theme/colors';
+import DecorativeBackground from '../../components/DecorativeBackground';
 
-const LoginScreen = ({ navigation }) => {
-  const [username, setUsername] = useState('');
+const LOGO_URI =
+  'https://lh3.googleusercontent.com/aida-public/AB6AXuB1jbmQneEXSySHL1Ttnanoc29N-wKzF-5pK5TlXl4J-yYObxL-IRB9lnG99-EBMUEFlGQUBpBhBzNC_ew77EpXzPFl-nxlDNTmwQIlM7iw0fru9TLu3im2iVB9gNxPL6aa5lMLip639WEnSxO96qBiCrYLsr64Sc0K4VUrK8nGriUjwG-XTwQX3F0YcPVhIKcJ9oMFHAL6sKah8cZRQrUeYQE2-ZDGi48ZTi4sHsHv0yE6f3EHLX_COMN6rJQk7W3HP64_4jlhWZ0';
+
+export default function LoginScreen({ navigation }) {
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
+  const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
   const { signIn } = useAuth();
 
   const handleLogin = async () => {
-    if (!username || !password) {
-      Alert.alert('Error', 'Por favor ingresa usuario y contraseña');
+    if (!identifier.trim() || !password) {
+      Alert.alert('Datos incompletos', 'Ingresa usuario o correo y contraseña.');
       return;
     }
-
     setLoading(true);
-    const result = await signIn(username, password);
+    const result = await signIn(identifier.trim(), password);
     setLoading(false);
-
     if (!result.success) {
-      Alert.alert('Error', result.error);
+      Alert.alert('No se pudo iniciar sesión', result.error);
     }
   };
 
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.container}
+      style={styles.root}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <View style={styles.header}>
+      <DecorativeBackground />
+      <View style={styles.topBar}>
+        {navigation.canGoBack() ? (
+          <Pressable
+            style={styles.iconBtn}
+            onPress={() => navigation.goBack()}
+            hitSlop={12}
+          >
+            <MaterialCommunityIcons name="arrow-left" size={22} color={C.tertiary} />
+          </Pressable>
+        ) : (
+          <View style={{ width: 40 }} />
+        )}
+        <Text style={styles.brandTop}>TutoUdec</Text>
+        <View style={{ width: 40 }} />
+      </View>
+
+      <ScrollView
+        contentContainerStyle={styles.scroll}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.hero}>
+          <View style={styles.logoGlow} />
+          <View style={styles.logoBox}>
+            <Image source={{ uri: LOGO_URI }} style={styles.logoImg} resizeMode="contain" />
+          </View>
           <Text style={styles.title}>TutoUdec</Text>
-          <Text style={styles.subtitle}>Sistema de Tutorías</Text>
+          <Text style={styles.tagline}>
+            Tu red de tutorías académicas de excelencia
+          </Text>
         </View>
 
         <View style={styles.form}>
-          <Text style={styles.label}>Usuario</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Ingresa tu usuario"
-            value={username}
-            onChangeText={setUsername}
-            autoCapitalize="none"
-          />
+          <Text style={styles.label}>Usuario o correo</Text>
+          <View style={styles.inputWrap}>
+            <MaterialCommunityIcons
+              name="account-outline"
+              size={20}
+              color={C.outline}
+              style={styles.inputIcon}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="nombre@ucundinamarca.edu.co"
+              placeholderTextColor={C.outline}
+              value={identifier}
+              onChangeText={setIdentifier}
+              autoCapitalize="none"
+              autoCorrect={false}
+              keyboardType="email-address"
+            />
+          </View>
 
           <Text style={styles.label}>Contraseña</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Ingresa tu contraseña"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-          />
+          <View style={styles.inputWrap}>
+            <MaterialCommunityIcons
+              name="lock-outline"
+              size={20}
+              color={C.outline}
+              style={styles.inputIcon}
+            />
+            <TextInput
+              style={[styles.input, styles.inputWithToggle]}
+              placeholder="••••••••"
+              placeholderTextColor={C.outline}
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry={!showPass}
+            />
+            <Pressable onPress={() => setShowPass((v) => !v)} style={styles.togglePass}>
+              <MaterialCommunityIcons
+                name={showPass ? 'eye-off-outline' : 'eye-outline'}
+                size={22}
+                color={C.tertiary}
+              />
+            </Pressable>
+          </View>
 
           <TouchableOpacity
-            style={styles.button}
+            style={[styles.primaryBtn, loading && styles.primaryBtnDisabled]}
             onPress={handleLogin}
             disabled={loading}
+            activeOpacity={0.9}
           >
             {loading ? (
-              <ActivityIndicator color="#fff" />
+              <ActivityIndicator color={C.onPrimary} />
             ) : (
-              <Text style={styles.buttonText}>Iniciar Sesión</Text>
+              <Text style={styles.primaryBtnText}>Iniciar sesión</Text>
             )}
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={styles.linkButton}
-            onPress={() => navigation.navigate('Register')}
+            style={styles.linkRow}
+            onPress={() => navigation.navigate('ForgotPassword')}
           >
-            <Text style={styles.linkText}>
-              ¿No tienes cuenta? Regístrate
-            </Text>
+            <Text style={styles.linkSecondary}>¿Olvidaste tu contraseña?</Text>
           </TouchableOpacity>
+
+          <View style={styles.footerRow}>
+            <Text style={styles.muted}>¿No tienes una cuenta? </Text>
+            <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+              <Text style={styles.linkBold}>Crear cuenta</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
-};
+}
 
 const styles = StyleSheet.create({
-  container: {
+  root: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: C.surface,
   },
-  scrollContainer: {
-    flexGrow: 1,
+  topBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingTop: Platform.OS === 'ios' ? 56 : 36,
+    paddingBottom: 8,
+    backgroundColor: 'rgba(255,255,255,0.92)',
+  },
+  iconBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
     justifyContent: 'center',
-    padding: 20,
   },
-  header: {
-    alignItems: 'center',
-    marginBottom: 40,
-  },
-  title: {
-    fontSize: 36,
-    fontWeight: 'bold',
-    color: '#4A90D9',
-  },
-  subtitle: {
+  brandTop: {
     fontSize: 18,
-    color: '#666',
-    marginTop: 8,
+    fontWeight: '800',
+    color: C.primary,
+    letterSpacing: -0.5,
   },
-  form: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+  scroll: {
+    paddingHorizontal: 28,
+    paddingBottom: 40,
+    paddingTop: 8,
   },
-  label: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 8,
+  hero: {
+    alignItems: 'center',
+    marginBottom: 28,
   },
-  input: {
+  logoGlow: {
+    position: 'absolute',
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: C.primary,
+    opacity: 0.08,
+    top: 8,
+  },
+  logoBox: {
+    width: 88,
+    height: 88,
+    borderRadius: 16,
+    backgroundColor: C.surfaceContainerLowest,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 10,
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
+    borderColor: C.outlineVariant + '33',
     marginBottom: 16,
-    backgroundColor: '#fafafa',
   },
-  button: {
-    backgroundColor: '#4A90D9',
-    borderRadius: 8,
-    padding: 16,
+  logoImg: { width: 68, height: 68 },
+  title: {
+    fontSize: 34,
+    fontWeight: '800',
+    color: C.primary,
+    letterSpacing: -1,
+  },
+  tagline: {
+    marginTop: 6,
+    fontSize: 14,
+    color: C.onSurfaceVariant,
+    textAlign: 'center',
+    maxWidth: 280,
+    lineHeight: 20,
+  },
+  form: { gap: 6 },
+  label: {
+    marginTop: 10,
+    marginLeft: 6,
+    fontSize: 11,
+    fontWeight: '700',
+    color: C.onSurfaceVariant,
+    letterSpacing: 0.6,
+    textTransform: 'uppercase',
+  },
+  inputWrap: {
+    flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 8,
+    backgroundColor: C.surfaceContainerHighest,
+    borderRadius: 14,
+    marginTop: 6,
   },
-  buttonText: {
-    color: '#fff',
+  inputIcon: { marginLeft: 14 },
+  input: {
+    flex: 1,
+    paddingVertical: 16,
+    paddingHorizontal: 12,
     fontSize: 16,
-    fontWeight: '600',
+    color: C.onSurface,
   },
-  linkButton: {
-    marginTop: 20,
+  inputWithToggle: { paddingRight: 4 },
+  togglePass: { padding: 12 },
+  primaryBtn: {
+    backgroundColor: C.primaryContainer,
+    borderRadius: 999,
+    paddingVertical: 16,
     alignItems: 'center',
+    marginTop: 20,
+    shadowColor: C.primary,
+    shadowOpacity: 0.25,
+    shadowOffset: { width: 0, height: 8 },
+    shadowRadius: 16,
+    elevation: 4,
   },
-  linkText: {
-    color: '#4A90D9',
+  primaryBtnDisabled: { opacity: 0.7 },
+  primaryBtnText: {
+    color: C.onPrimary,
+    fontSize: 16,
+    fontWeight: '800',
+  },
+  linkRow: { alignItems: 'center', marginTop: 20 },
+  linkSecondary: {
+    color: C.secondary,
+    fontWeight: '600',
+    fontSize: 15,
+  },
+  footerRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 20,
+    flexWrap: 'wrap',
+  },
+  muted: { color: C.onSurfaceVariant, fontSize: 14 },
+  linkBold: {
+    color: C.secondary,
+    fontWeight: '800',
     fontSize: 14,
   },
 });
-
-export default LoginScreen;

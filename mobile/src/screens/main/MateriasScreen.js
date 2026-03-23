@@ -8,7 +8,9 @@ import {
   ActivityIndicator,
   RefreshControl,
 } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { materiaService } from '../../services/api';
+import { C } from '../../theme/colors';
 
 const MateriasScreen = ({ navigation }) => {
   const [materias, setMaterias] = useState([]);
@@ -37,9 +39,9 @@ const MateriasScreen = ({ navigation }) => {
   }, []);
 
   const renderMateria = ({ item }) => (
-    <TouchableOpacity style={styles.card}>
+    <TouchableOpacity style={styles.card} activeOpacity={0.9}>
       <View style={styles.iconContainer}>
-        <Text style={styles.icon}>📚</Text>
+        <MaterialCommunityIcons name="book-open-variant" size={24} color={C.primary} />
       </View>
       <View style={styles.content}>
         <Text style={styles.name}>{item.nombre}</Text>
@@ -58,13 +60,25 @@ const MateriasScreen = ({ navigation }) => {
   if (loading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" color="#4A90D9" />
+        <ActivityIndicator size="large" color={C.primaryContainer} />
       </View>
     );
   }
 
   return (
     <View style={styles.container}>
+      <View style={styles.pageHeader}>
+        <TouchableOpacity
+          onPress={() =>
+            navigation.canGoBack() ? navigation.goBack() : navigation.navigate('Home')
+          }
+          style={styles.backBtn}
+        >
+          <MaterialCommunityIcons name="arrow-left" size={22} color={C.onSurface} />
+        </TouchableOpacity>
+        <Text style={styles.pageTitle}>Materias</Text>
+        <View style={{ width: 40 }} />
+      </View>
       <FlatList
         data={materias}
         renderItem={renderMateria}
@@ -84,8 +98,18 @@ const MateriasScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: C.surface,
   },
+  pageHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingTop: 48,
+    paddingBottom: 12,
+  },
+  backBtn: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
+  pageTitle: { fontSize: 20, fontWeight: '800', color: C.primary },
   center: {
     flex: 1,
     justifyContent: 'center',
@@ -93,53 +117,48 @@ const styles = StyleSheet.create({
   },
   list: {
     padding: 16,
+    paddingBottom: 32,
   },
   card: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
+    backgroundColor: C.surfaceContainerLowest,
+    borderRadius: 16,
     padding: 16,
     marginBottom: 12,
     flexDirection: 'row',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    borderWidth: 1,
+    borderColor: C.outlineVariant + '44',
   },
   iconContainer: {
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: '#E3F2FD',
+    backgroundColor: C.primary + '14',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 16,
-  },
-  icon: {
-    fontSize: 24,
   },
   content: {
     flex: 1,
   },
   name: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
+    fontWeight: '800',
+    color: C.onSurface,
     marginBottom: 4,
   },
   description: {
     fontSize: 14,
-    color: '#666',
+    color: C.onSurfaceVariant,
     marginBottom: 8,
   },
   stats: {
     fontSize: 13,
-    color: '#4A90D9',
-    fontWeight: '500',
+    color: C.primaryContainer,
+    fontWeight: '600',
   },
   empty: {
     textAlign: 'center',
-    color: '#999',
+    color: C.onSurfaceVariant,
     marginTop: 50,
     fontSize: 16,
   },

@@ -9,6 +9,14 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     """Login JWT que incluye datos del usuario para el cliente (web/móvil)."""
 
     def validate(self, attrs):
+        # Permitir iniciar sesión con correo (el cliente sigue enviando la clave "username").
+        identifier = attrs.get('username') or attrs.get('email')
+        if identifier and '@' in str(identifier):
+            try:
+                u = User.objects.get(email__iexact=str(identifier).strip())
+                attrs['username'] = u.username
+            except User.DoesNotExist:
+                pass
         data = super().validate(attrs)
         data['user'] = UserSerializer(self.user).data
         return data

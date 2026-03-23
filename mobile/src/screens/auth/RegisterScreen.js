@@ -10,215 +10,277 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Pressable,
 } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
+import { C } from '../../theme/colors';
+import DecorativeBackground from '../../components/DecorativeBackground';
 
-const RegisterScreen = ({ navigation }) => {
-  const [formData, setFormData] = useState({
-    username: '',
-    email: '',
-    first_name: '',
-    last_name: '',
-    password: '',
-    password_confirm: '',
-  });
+function buildUsernameFromEmail(email) {
+  const local = String(email).split('@')[0] || 'usuario';
+  const safe = local.replace(/[^a-zA-Z0-9._-]/g, '');
+  const base = safe.length >= 3 ? safe : 'usuario';
+  return `${base}${Math.floor(100 + Math.random() * 899)}`;
+}
+
+function splitFullName(fullName) {
+  const parts = String(fullName).trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return { first_name: '', last_name: '' };
+  if (parts.length === 1) return { first_name: parts[0], last_name: '' };
+  return { first_name: parts[0], last_name: parts.slice(1).join(' ') };
+}
+
+export default function RegisterScreen({ navigation }) {
+  const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [passwordConfirm, setPasswordConfirm] = useState('');
+  const [role, setRole] = useState('estudiante');
   const [loading, setLoading] = useState(false);
   const { signUp } = useAuth();
 
-  const handleChange = (field, value) => {
-    setFormData({ ...formData, [field]: value });
-  };
-
   const handleRegister = async () => {
-    const { username, email, password, password_confirm, first_name, last_name } = formData;
-
-    if (!username || !email || !password || !password_confirm) {
-      Alert.alert('Error', 'Por favor completa todos los campos obligatorios');
+    if (!fullName.trim() || !email.trim() || !password || !passwordConfirm) {
+      Alert.alert('Datos incompletos', 'Completa nombre, correo y contraseñas.');
       return;
     }
-
-    if (password !== password_confirm) {
-      Alert.alert('Error', 'Las contraseñas no coinciden');
+    if (password !== passwordConfirm) {
+      Alert.alert('Contraseñas', 'Las contraseñas no coinciden.');
       return;
     }
-
     if (password.length < 6) {
-      Alert.alert('Error', 'La contraseña debe tener al menos 6 caracteres');
+      Alert.alert('Contraseña', 'Mínimo 6 caracteres.');
       return;
     }
+
+    const { first_name, last_name } = splitFullName(fullName);
+    const username = buildUsernameFromEmail(email);
 
     setLoading(true);
-    const result = await signUp(formData);
+    const result = await signUp(
+      {
+        username,
+        email: email.trim().toLowerCase(),
+        first_name,
+        last_name,
+        password,
+        password_confirm: passwordConfirm,
+      },
+      { appRole: role }
+    );
     setLoading(false);
 
     if (!result.success) {
-      const errorMsg = typeof result.error === 'object' 
-        ? Object.values(result.error).flat().join('\n')
-        : result.error;
-      Alert.alert('Error', errorMsg);
+      Alert.alert('No se pudo registrar', result.error);
     }
   };
 
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.container}
+      style={styles.root}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Crear Cuenta</Text>
-          <Text style={styles.subtitle}>Únete a TutoUdec</Text>
-        </View>
+      <DecorativeBackground />
+      <View style={styles.topBar}>
+        <Pressable style={styles.iconBtn} onPress={() => navigation.goBack()} hitSlop={12}>
+          <MaterialCommunityIcons name="arrow-left" size={22} color={C.primary} />
+        </Pressable>
+        <Text style={styles.brandTop}>TutoUdec</Text>
+        <View style={{ width: 40 }} />
+      </View>
 
-        <View style={styles.form}>
-          <Text style={styles.label}>Usuario *</Text>
+      <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
+        <Text style={styles.h2}>Crear cuenta</Text>
+        <Text style={styles.lead}>
+          Únete a la comunidad académica. El usuario se genera a partir de tu correo.
+        </Text>
+
+        <View style={styles.card}>
+          <Text style={styles.label}>Nombre completo</Text>
           <TextInput
-            style={styles.input}
-            placeholder="Elige un nombre de usuario"
-            value={formData.username}
-            onChangeText={(text) => handleChange('username', text)}
-            autoCapitalize="none"
+            style={styles.inputPlain}
+            placeholder="Ej. Juan Pérez"
+            placeholderTextColor={C.outline}
+            value={fullName}
+            onChangeText={setFullName}
           />
 
-          <Text style={styles.label}>Email *</Text>
+          <Text style={styles.label}>Correo electrónico</Text>
           <TextInput
-            style={styles.input}
-            placeholder="tu@email.com"
-            value={formData.email}
-            onChangeText={(text) => handleChange('email', text)}
+            style={styles.inputPlain}
+            placeholder="usuario@ucundinamarca.edu.co"
+            placeholderTextColor={C.outline}
+            value={email}
+            onChangeText={setEmail}
             keyboardType="email-address"
             autoCapitalize="none"
           />
 
-          <Text style={styles.label}>Nombre</Text>
+          <Text style={styles.label}>Contraseña</Text>
           <TextInput
-            style={styles.input}
-            placeholder="Tu nombre"
-            value={formData.first_name}
-            onChangeText={(text) => handleChange('first_name', text)}
-          />
-
-          <Text style={styles.label}>Apellido</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Tu apellido"
-            value={formData.last_name}
-            onChangeText={(text) => handleChange('last_name', text)}
-          />
-
-          <Text style={styles.label}>Contraseña *</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Mínimo 6 caracteres"
-            value={formData.password}
-            onChangeText={(text) => handleChange('password', text)}
+            style={styles.inputPlain}
+            placeholder="••••••••"
+            placeholderTextColor={C.outline}
+            value={password}
+            onChangeText={setPassword}
             secureTextEntry
           />
 
-          <Text style={styles.label}>Confirmar Contraseña *</Text>
+          <Text style={styles.label}>Confirmar contraseña</Text>
           <TextInput
-            style={styles.input}
-            placeholder="Repite tu contraseña"
-            value={formData.password_confirm}
-            onChangeText={(text) => handleChange('password_confirm', text)}
+            style={styles.inputPlain}
+            placeholder="••••••••"
+            placeholderTextColor={C.outline}
+            value={passwordConfirm}
+            onChangeText={setPasswordConfirm}
             secureTextEntry
           />
+
+          <Text style={styles.label}>Tipo de usuario</Text>
+          <View style={styles.segment}>
+            <TouchableOpacity
+              style={[styles.segmentItem, role === 'estudiante' && styles.segmentActive]}
+              onPress={() => setRole('estudiante')}
+            >
+              <Text style={[styles.segmentText, role === 'estudiante' && styles.segmentTextActive]}>
+                Estudiante
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.segmentItem, role === 'tutor' && styles.segmentActive]}
+              onPress={() => setRole('tutor')}
+            >
+              <Text style={[styles.segmentText, role === 'tutor' && styles.segmentTextActive]}>
+                Tutor
+              </Text>
+            </TouchableOpacity>
+          </View>
 
           <TouchableOpacity
-            style={styles.button}
+            style={[styles.primaryBtn, loading && { opacity: 0.7 }]}
             onPress={handleRegister}
             disabled={loading}
+            activeOpacity={0.9}
           >
             {loading ? (
-              <ActivityIndicator color="#fff" />
+              <ActivityIndicator color={C.onPrimary} />
             ) : (
-              <Text style={styles.buttonText}>Registrarse</Text>
+              <Text style={styles.primaryBtnText}>Registrarse</Text>
             )}
           </TouchableOpacity>
+        </View>
 
-          <TouchableOpacity
-            style={styles.linkButton}
-            onPress={() => navigation.navigate('Login')}
-          >
-            <Text style={styles.linkText}>
-              ¿Ya tienes cuenta? Inicia sesión
-            </Text>
+        <View style={styles.footerRow}>
+          <Text style={styles.muted}>¿Ya tienes cuenta? </Text>
+          <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+            <Text style={styles.linkBold}>Iniciar sesión</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
-};
+}
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  scrollContainer: {
-    flexGrow: 1,
-    padding: 20,
-    paddingTop: 40,
-  },
-  header: {
+  root: { flex: 1, backgroundColor: C.surface },
+  topBar: {
+    flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 30,
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingTop: Platform.OS === 'ios' ? 56 : 36,
+    paddingBottom: 8,
+    backgroundColor: 'rgba(255,255,255,0.92)',
   },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#4A90D9',
+  iconBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  subtitle: {
-    fontSize: 16,
-    color: '#666',
-    marginTop: 8,
+  brandTop: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: C.primary,
+    letterSpacing: -0.5,
   },
-  form: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 20,
+  scroll: { padding: 24, paddingTop: 8, paddingBottom: 48 },
+  h2: {
+    fontSize: 28,
+    fontWeight: '800',
+    color: C.onSurface,
+    marginBottom: 6,
+    letterSpacing: -0.5,
+  },
+  lead: { color: C.onSurfaceVariant, fontSize: 15, lineHeight: 22, marginBottom: 20 },
+  card: {
+    backgroundColor: C.surfaceContainerLowest,
+    borderRadius: 18,
+    padding: 22,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowOpacity: 0.08,
+    shadowOffset: { width: 0, height: 16 },
+    shadowRadius: 32,
+    elevation: 4,
   },
   label: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 8,
+    marginTop: 14,
+    marginBottom: 6,
+    marginLeft: 2,
+    fontSize: 11,
+    fontWeight: '700',
+    color: C.onSurfaceVariant,
+    letterSpacing: 0.5,
+    textTransform: 'uppercase',
   },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 12,
+  inputPlain: {
+    backgroundColor: C.surfaceContainerHighest,
+    borderRadius: 14,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
     fontSize: 16,
-    marginBottom: 16,
-    backgroundColor: '#fafafa',
+    color: C.onSurface,
   },
-  button: {
-    backgroundColor: '#4A90D9',
-    borderRadius: 8,
-    padding: 16,
-    alignItems: 'center',
-    marginTop: 8,
+  segment: {
+    flexDirection: 'row',
+    backgroundColor: C.surfaceContainerHigh,
+    borderRadius: 14,
+    padding: 4,
+    marginTop: 6,
+    gap: 4,
   },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  linkButton: {
-    marginTop: 20,
+  segmentItem: {
+    flex: 1,
+    paddingVertical: 10,
+    borderRadius: 10,
     alignItems: 'center',
   },
-  linkText: {
-    color: '#4A90D9',
-    fontSize: 14,
+  segmentActive: {
+    backgroundColor: C.surfaceContainerLowest,
+    shadowColor: '#000',
+    shadowOpacity: 0.06,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+    elevation: 2,
   },
+  segmentText: { fontSize: 14, fontWeight: '600', color: C.tertiary },
+  segmentTextActive: { color: C.primary },
+  primaryBtn: {
+    backgroundColor: C.primaryContainer,
+    borderRadius: 999,
+    paddingVertical: 16,
+    alignItems: 'center',
+    marginTop: 22,
+  },
+  primaryBtnText: { color: C.onPrimary, fontSize: 16, fontWeight: '800' },
+  footerRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 28,
+    flexWrap: 'wrap',
+  },
+  muted: { color: C.onSurfaceVariant, fontSize: 14 },
+  linkBold: { color: C.secondary, fontWeight: '800', fontSize: 14 },
 });
-
-export default RegisterScreen;

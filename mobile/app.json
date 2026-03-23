@@ -8,7 +8,7 @@
     "userInterfaceStyle": "automatic",
     "splash": {
       "resizeMode": "contain",
-      "backgroundColor": "#4A90D9"
+      "backgroundColor": "#007F3F"
     },
     "assetBundlePatterns": ["**/*"],
     "ios": {
@@ -17,9 +17,10 @@
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#4A90D9"
+        "backgroundColor": "#007F3F"
       },
-      "package": "com.tutoudec.mobile"
+      "package": "com.tutoudec.mobile",
+      "usesCleartextTraffic": true
     },
     "extra": {
       "apiUrl": null
