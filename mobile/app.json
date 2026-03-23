@@ -1,0 +1,28 @@
+{
+  "expo": {
+    "name": "TutoUdec",
+    "slug": "tutoudec-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "tutoudec",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "resizeMode": "contain",
+      "backgroundColor": "#4A90D9"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.tutoudec.mobile"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#4A90D9"
+      },
+      "package": "com.tutoudec.mobile"
+    },
+    "extra": {
+      "apiUrl": null
+    }
+  }
+}
