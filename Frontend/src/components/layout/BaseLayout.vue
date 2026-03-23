@@ -4,7 +4,7 @@
         <header class="navbar">
             <div class="navbar-container">
                 <router-link to="/" class="navbar-logo">
-                    <!-- <img src="/assets/logo.svg" alt="logo"> -->
+                    <span class="brand-text">TutoUdec</span>
                 </router-link>
 
                 <!-- Botón mobile -->
@@ -18,27 +18,29 @@
                             <li>
                                 <router-link to="/">Inicio</router-link>
                             </li>
-
                             <li>
+                                <router-link to="/tutores">Tutores</router-link>
+                            </li>
+                            <li>
+                                <router-link to="/materias">Materias</router-link>
+                            </li>
+                            <li v-if="auth.isAuthenticated">
+                                <router-link to="/tutorias">Mis tutorías</router-link>
+                            </li>
+
+                            <li v-if="!auth.isAuthenticated">
                                 <router-link to="/sesion" class="cta-button">
-                                    <i class="fa-solid fa-user"></i> login
+                                    Iniciar sesión
                                 </router-link>
                             </li>
-
-                            <li class="dropdown">
-                                <button class="dropdown-toggle" @click="toggleDropdown('servicios', $event)">
-                                    <i class="fa-solid fa-bars"></i> Servicios
+                            <li v-if="!auth.isAuthenticated">
+                                <router-link to="/formulario">Registro</router-link>
+                            </li>
+                            <li v-else class="user-row">
+                                <span class="user-name">{{ greeting }}</span>
+                                <button type="button" class="logout-btn" @click="logout">
+                                    Salir
                                 </button>
-                                <ul :class="['dropdown-list', { visible: dropdownAbierto === 'servicios' }]">
-                                    <li><router-link to="/servicio1">Servicio 1</router-link></li>
-                                    <li><router-link to="/servicio2">Servicio 2</router-link></li>
-                                </ul>
-                            </li>
-
-                            <li>
-                                <router-link to="/formulario">
-                                    <i class="fa-solid fa-file"></i> Formulario
-                                </router-link>
                             </li>
                         </ul>
                     </nav>
@@ -80,45 +82,28 @@
     </div>
 </template>
 
-<script>
-import { ref, onMounted, onBeforeUnmount } from 'vue';
+<script setup>
+import { ref, computed } from 'vue';
+import { useRouter } from 'vue-router';
+import { useAuthStore } from '@/stores/auth';
 
-export default {
-    setup() {
-        const dropdownAbierto = ref('');
-        const mobileMenuOpen = ref(false);
+const router = useRouter();
+const auth = useAuthStore();
 
-        // Toggle dropdown
-        function toggleDropdown(nombre, event) {
-            if (event) event.stopPropagation();
-            dropdownAbierto.value = dropdownAbierto.value === nombre ? '' : nombre;
-        }
+const mobileMenuOpen = ref(false);
 
-        // Cierra dropdown al hacer click fuera
-        function cerrarDropdownClickFuera(event) {
-            const dropdowns = document.querySelectorAll('.dropdown');
-            let clickDentro = false;
-            dropdowns.forEach(dd => {
-                if (dd.contains(event.target)) clickDentro = true;
-            });
-            if (!clickDentro) dropdownAbierto.value = '';
-        }
+const greeting = computed(() => {
+    const u = auth.user;
+    if (!u) return '';
+    const name = [u.first_name, u.last_name].filter(Boolean).join(' ');
+    return name || u.username || '';
+});
 
-        onMounted(() => {
-            document.addEventListener('click', cerrarDropdownClickFuera);
-        });
-
-        onBeforeUnmount(() => {
-            document.removeEventListener('click', cerrarDropdownClickFuera);
-        });
-
-        return {
-            dropdownAbierto,
-            mobileMenuOpen,
-            toggleDropdown,
-        };
-    },
-};
+function logout() {
+    auth.logout();
+    mobileMenuOpen.value = false;
+    router.push('/');
+}
 </script>
 
 <style>
@@ -165,12 +150,48 @@ export default {
     padding: 0 2rem;
 }
 
+.brand-text {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: var(--color-verde);
+    text-decoration: none;
+}
+
 .navbar-logo img {
     height: 64px;
     object-fit: contain;
     transition: transform 0.3s ease;
     filter: drop-shadow(0 1px 1px rgba(75, 85, 99, 0.3));
     padding-right: 1rem;
+}
+
+.user-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.user-name {
+    font-size: 0.95rem;
+    color: var(--gris-oscuro);
+    max-width: 160px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.logout-btn {
+    background: transparent;
+    border: 1.5px solid var(--borde-gris);
+    border-radius: 10px;
+    padding: 0.5rem 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--color-negro-texto);
+}
+
+.logout-btn:hover {
+    border-color: var(--gris-oscuro);
 }
 
 .navbar-logo:hover img {
