@@ -1,2 +1,29 @@
-# Auto detect text files and perform LF normalization
-* text=auto
+# Normalización de fin de línea: el repositorio guarda LF.
+# Reduce avisos de CRLF al hacer add/commit en Windows cuando el editor ya usa LF.
+* text=auto eol=lf
+
+# Scripts de consola nativos de Windows (CRLF es lo habitual)
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# Shell / migraciones que deben ser LF explícitamente
+*.sh text eol=lf
+
+# Fuentes y datos que no deben convertirse
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.pdf binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary
+*.mp4 binary
+*.webm binary
+*.zip binary
+*.gz binary
+*.7z binary
