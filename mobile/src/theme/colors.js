@@ -1,0 +1,23 @@
+/** Paleta alineada con los mocks HTML (Material / TutoUdec) */
+export const C = {
+  primary: '#006330',
+  primaryContainer: '#007F3F',
+  secondary: '#705D00',
+  secondaryContainer: '#FCD400',
+  onPrimary: '#FFFFFF',
+  onPrimaryContainer: '#C8FFD0',
+  onSecondaryContainer: '#6E5C00',
+  surface: '#FBF9F8',
+  surfaceContainer: '#EFEDED',
+  surfaceContainerHigh: '#E9E8E7',
+  surfaceContainerHighest: '#E4E2E2',
+  surfaceContainerLow: '#F5F3F3',
+  surfaceContainerLowest: '#FFFFFF',
+  onSurface: '#1B1C1C',
+  onSurfaceVariant: '#3E4A3F',
+  outline: '#6E7A6E',
+  outlineVariant: '#BECABC',
+  tertiary: '#565656',
+  error: '#BA1A1A',
+  instGreen: '#007F3F',
+};
