@@ -1,16 +1,59 @@
 # Vistas que gestionan las operaciones CRUD.
-from rest_framework import viewsets, status, filters
-from rest_framework.decorators import action
+from rest_framework import viewsets, status, filters, generics
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.views import APIView
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.tokens import RefreshToken
 from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
 from .models import Tutor, Materia, Tutoria
 from .serializers import (
     TutorSerializer, TutorListSerializer, MateriaSerializer,
-    TutoriaSerializer, UserSerializer
+    TutoriaSerializer, UserSerializer, RegisterSerializer,
+    CustomTokenObtainPairSerializer,
 )
 
+
+# ============================================
+# AUTHENTICATION VIEWS
+# ============================================
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    """Login: access, refresh y objeto user para sincronizar frontends."""
+    serializer_class = CustomTokenObtainPairSerializer
+
+
+class RegisterView(APIView):
+    """User registration view"""
+    permission_classes = [AllowAny]
+    
+    def post(self, request):
+        serializer = RegisterSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            refresh = RefreshToken.for_user(user)
+            return Response({
+                'user': UserSerializer(user).data,
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+            }, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UserProfileView(APIView):
+    """Get current user profile"""
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+        serializer = UserSerializer(request.user)
+        return Response(serializer.data)
+
+
+# ============================================
+# MATERIA VIEWSET
+# ============================================
 
 class MateriaViewSet(viewsets.ModelViewSet):
     queryset = Materia.objects.all()
@@ -37,6 +80,10 @@ class MateriaViewSet(viewsets.ModelViewSet):
         serializer = TutorListSerializer(tutores, many=True)
         return Response(serializer.data)
 
+
+# ============================================
+# TUTOR VIEWSET
+# ============================================
 
 class TutorViewSet(viewsets.ModelViewSet):
     queryset = Tutor.objects.select_related('usuario').prefetch_related('materias')
@@ -111,6 +158,10 @@ class TutorViewSet(viewsets.ModelViewSet):
         tutor.save()
         return Response({'status': 'Tutor marcado como no disponible'})
 
+
+# ============================================
+# TUTORIA VIEWSET
+# ============================================
 
 class TutoriaViewSet(viewsets.ModelViewSet):
     queryset = Tutoria.objects.select_related('tutor', 'estudiante', 'materia').all()

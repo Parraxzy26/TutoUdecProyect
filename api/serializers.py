@@ -1,7 +1,17 @@
 # Serializers para convertir los modelos en datos JSON para la API.
 from rest_framework import serializers
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth.models import User
 from .models import Tutor, Materia, Tutoria
+
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    """Login JWT que incluye datos del usuario para el cliente (web/móvil)."""
+
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        data['user'] = UserSerializer(self.user).data
+        return data
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -84,3 +94,24 @@ class TutorListSerializer(serializers.ModelSerializer):
     
     def get_total_tutorias(self, obj):
         return obj.tutorias.filter(estado='completada').count()
+
+
+
+class RegisterSerializer(serializers.ModelSerializer):
+    """Serializer para registro de usuarios"""
+    password = serializers.CharField(write_only=True, required=True, min_length=6)
+    password_confirm = serializers.CharField(write_only=True, required=True)
+    
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'password', 'password_confirm']
+    
+    def validate(self, attrs):
+        if attrs['password'] != attrs['password_confirm']:
+            raise serializers.ValidationError("Las contraseñas no coinciden")
+        return attrs
+    
+    def create(self, validated_data):
+        validated_data.pop('password_confirm')
+        user = User.objects.create_user(**validated_data)
+        return user
