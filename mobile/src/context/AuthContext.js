@@ -49,10 +49,17 @@ export const AuthProvider = ({ children }) => {
 
       return { success: true };
     } catch (error) {
-      return {
-        success: false,
-        error: error.response?.data?.detail || 'Error al iniciar sesión',
-      };
+      const d = error.response?.data;
+      let msg =
+        d?.detail ||
+        (typeof d === 'object' && d !== null
+          ? Object.values(d)
+              .flat()
+              .filter(Boolean)
+              .join(' ')
+          : null);
+      if (!msg) msg = error.message || 'Error al iniciar sesión';
+      return { success: false, error: msg };
     }
   };
 
