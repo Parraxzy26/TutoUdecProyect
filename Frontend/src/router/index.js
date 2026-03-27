@@ -1,3 +1,6 @@
+/**
+ * Rutas web y guardas de navegación (invitado vs autenticado).
+ */
 import { createRouter, createWebHistory } from 'vue-router';
 import BaseLayout from '../components/layout/BaseLayout.vue';
 import HomeView from '../views/HomeView.vue';
@@ -60,9 +63,11 @@ const router = createRouter({
 
 router.beforeEach((to) => {
   const auth = useAuthStore();
+  // Rutas protegidas: redirige a login con return URL.
   if (to.meta.requiresAuth && !auth.isAuthenticated) {
     return { name: 'sesion', query: { redirect: to.fullPath } };
   }
+  // Sesión/registro solo para usuarios no autenticados.
   if (to.meta.guestOnly && auth.isAuthenticated) {
     return { name: 'home' };
   }

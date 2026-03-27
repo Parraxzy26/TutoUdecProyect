@@ -1,3 +1,6 @@
+/**
+ * Raíz de la app Expo: provee zona segura, sesión y navegación.
+ */
 import React from 'react';
 import { View, ActivityIndicator } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
@@ -9,6 +12,7 @@ import { C } from './src/theme/colors';
 
 function AppBoot() {
   const { loading } = useAuth();
+  // Mientras se lee AsyncStorage no se monta el navigator (evita flash de login).
   if (loading) {
     return (
       <View

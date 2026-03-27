@@ -1,5 +1,7 @@
 import axios from 'axios';
 
+// Configuración base de API para frontend web.
+// Se prioriza variable de entorno para facilitar despliegues por ambiente.
 const baseURL =
   import.meta.env.VITE_API_URL?.replace(/\/$/, '') || 'http://127.0.0.1:8000/api';
 
@@ -16,6 +18,7 @@ export const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
+  // Regla de autenticación: si existe access token, se adjunta en cada request.
   const token = localStorage.getItem(ACCESS_KEY);
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
@@ -26,12 +29,15 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (res) => res,
   async (error) => {
+    // Manejo de error relevante: ante 401 se intenta refresh automático
+    // una sola vez para evitar bucles infinitos.
     const original = error.config;
     if (error.response?.status === 401 && original && !original._retry) {
       original._retry = true;
       const refresh = localStorage.getItem(REFRESH_KEY);
       if (refresh) {
         try {
+          // Se usa axios base para evitar recursión del mismo interceptor.
           const { data } = await axios.post(`${baseURL}/auth/refresh/`, {
             refresh,
           });
@@ -39,6 +45,7 @@ api.interceptors.response.use(
           original.headers.Authorization = `Bearer ${data.access}`;
           return api(original);
         } catch {
+          // Si falla refresh, se limpia sesión local y se propaga error.
           localStorage.removeItem(ACCESS_KEY);
           localStorage.removeItem(REFRESH_KEY);
         }
@@ -59,6 +66,7 @@ export function clearTokens() {
 }
 
 export const authApi = {
+  // Endpoints de identidad: login, alta de usuario, perfil y refresh.
   login: (body) => api.post('/auth/login/', body),
   register: (body) => api.post('/auth/register/', body),
   profile: () => api.get('/auth/profile/'),
@@ -66,6 +74,7 @@ export const authApi = {
 };
 
 export const tutoresApi = {
+  // Endpoints de tutores para listados, detalle y métricas.
   list: (params) => api.get('/tutores/', { params }),
   get: (id) => api.get(`/tutores/${id}/`),
   estadisticas: (id) => api.get(`/tutores/${id}/estadisticas/`),
@@ -74,12 +83,14 @@ export const tutoresApi = {
 };
 
 export const materiasApi = {
+  // Endpoints de materias y tutores asociados.
   list: (params) => api.get('/materias/', { params }),
   get: (id) => api.get(`/materias/${id}/`),
   tutores: (id) => api.get(`/materias/${id}/tutores/`),
 };
 
 export const tutoriasApi = {
+  // Endpoints de ciclo de vida de tutorías (crear, confirmar, cancelar, etc.).
   list: (params) => api.get('/tutorias/', { params }),
   get: (id) => api.get(`/tutorias/${id}/`),
   misTutorias: (params) =>

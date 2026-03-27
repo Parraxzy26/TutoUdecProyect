@@ -6,6 +6,8 @@ import sys
 
 def main():
     """Run administrative tasks."""
+    # Configuración crítica: este entrypoint debe resolver al settings
+    # del backend principal para ejecutar migraciones/servidor en el entorno correcto.
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings')
     try:
         from django.core.management import execute_from_command_line

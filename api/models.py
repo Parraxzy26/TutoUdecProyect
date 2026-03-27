@@ -1,10 +1,15 @@
-# Modelos de la base de datos para el sistema de tutorías.
+"""
+Modelos de dominio: materias, perfiles de tutor y sesiones de tutoría.
+
+Las transiciones de estado de Tutoria se aplican en vistas (views), no aquí.
+"""
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator, MaxValueValidator
-from django.utils import timezone
+
 
 class Materia(models.Model):
+    """Catálogo académico reutilizable por tutores y tutorías."""
     nombre = models.CharField(max_length=100, unique=True)
     descripcion = models.TextField(blank=True, null=True)
     creado_en = models.DateTimeField(auto_now_add=True)
@@ -19,6 +24,7 @@ class Materia(models.Model):
 
 
 class Tutor(models.Model):
+    """Perfil extendido 1:1 sobre User; puede dictar varias materias (M2M)."""
     NIVELES = [
         ('principiante', 'Principiante'),
         ('intermedio', 'Intermedio'),
@@ -80,6 +86,7 @@ class Tutoria(models.Model):
         return f"Tutoría de {self.estudiante.username} con {self.tutor.usuario.username}"
     
     def save(self, *args, **kwargs):
+        # Regla de consistencia: si hay inicio y fin, la duración se deriva automáticamente.
         if self.fecha_fin and self.fecha_inicio:
             duracion = (self.fecha_fin - self.fecha_inicio).total_seconds() / 60
             self.duracion_minutos = int(duracion)

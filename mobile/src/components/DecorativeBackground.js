@@ -1,3 +1,6 @@
+/**
+ * Fondo decorativo no interactivo para pantallas de auth (no afecta lógica).
+ */
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { C } from '../theme/colors';

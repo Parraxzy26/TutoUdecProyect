@@ -1,3 +1,6 @@
+/**
+ * Vite + Vue: alias @ -> src para imports tipo @/stores/auth.
+ */
 import { fileURLToPath, URL } from 'node:url'
 
 import { defineConfig } from 'vite'

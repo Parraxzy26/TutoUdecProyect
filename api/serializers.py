@@ -1,4 +1,8 @@
-# Serializers para convertir los modelos en datos JSON para la API.
+"""
+Serializers DRF: validación, representación JSON y extensiones JWT (login con email).
+
+Ver vistas en views.py para reglas de negocio que dependen de estos datos.
+"""
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth.models import User
@@ -13,9 +17,12 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         identifier = attrs.get('username') or attrs.get('email')
         if identifier and '@' in str(identifier):
             try:
+                # Decisión técnica: normalizar login por correo hacia username
+                # para compatibilidad con JWT serializer estándar.
                 u = User.objects.get(email__iexact=str(identifier).strip())
                 attrs['username'] = u.username
             except User.DoesNotExist:
+                # Se deja fallar en validate() del padre para mantener mensaje consistente.
                 pass
         data = super().validate(attrs)
         data['user'] = UserSerializer(self.user).data
@@ -73,6 +80,7 @@ class TutorSerializer(serializers.ModelSerializer):
 
 
 class TutoriaSerializer(serializers.ModelSerializer):
+    # Campos denormalizados para UI: evitan llamadas adicionales por nombres legibles.
     tutor_nombre = serializers.CharField(source='tutor.usuario.get_full_name', read_only=True)
     estudiante_nombre = serializers.CharField(source='estudiante.get_full_name', read_only=True)
     materia_nombre = serializers.CharField(source='materia.nombre', read_only=True)
@@ -115,6 +123,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         fields = ['id', 'username', 'email', 'first_name', 'last_name', 'password', 'password_confirm']
     
     def validate(self, attrs):
+        # Validación crítica de seguridad/usabilidad en registro.
         if attrs['password'] != attrs['password_confirm']:
             raise serializers.ValidationError("Las contraseñas no coinciden")
         return attrs

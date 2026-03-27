@@ -1,3 +1,7 @@
+/**
+ * Navegación principal: stack Auth vs Main (tabs).
+ * La pestaña "Materias" está oculta en la barra pero accesible por navegación.
+ */
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -21,6 +25,7 @@ const Tab = createBottomTabNavigator();
 
 function HomeTabScreen(props) {
   const { appRole } = useAuth();
+  // Misma pestaña "Inicio", distinto panel según rol guardado localmente.
   const Cmp = appRole === 'tutor' ? TutorHomeScreen : HomeScreen;
   return <Cmp {...props} />;
 }

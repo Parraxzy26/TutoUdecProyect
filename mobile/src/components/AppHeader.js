@@ -1,3 +1,7 @@
+/**
+ * Cabecera global de marca (logo horizontal) con respeto a safe area en iOS/Android.
+ * Exporta helpers de tamaño para login y tabs.
+ */
 import React from 'react';
 import {
   View,
@@ -25,11 +29,15 @@ export function getHeaderLogoSize(variant = 'main') {
   return { width: w, height: Math.max(34, w * 0.28) };
 }
 
-/** Logo pantalla de login: ancho casi total (el PNG ya incluye título y subtítulo) */
+/**
+ * Logo de login en modo "hero".
+ * Se limita el ancho máximo para evitar distorsión en tablets y
+ * se mantiene una altura proporcional al recurso horizontal.
+ */
 export function getLoginBrandLogoSize() {
   const sw = Dimensions.get('window').width;
-  const w = Math.min(sw - 15, 10000);
-  return { width: w, height: Math.max(70, Math.round(w * 1.00)) };
+  const w = Math.min(sw - 12, 400);
+  return { width: w, height: Math.max(64, Math.round(w * 0.42)) };
 }
 
 /**
@@ -46,8 +54,9 @@ export default function AppHeader({
   logoSize,
 }) {
   const insets = useSafeAreaInsets();
-  const size =
-    logoSize || getHeaderLogoSize(variant === 'stack' ? 'compact' : 'main');
+  // Decisión técnica: centralizamos escalado para que todas las pantallas
+  // compartan la misma lógica visual y no dupliquen "magic numbers".
+  const size = logoSize || getHeaderLogoSize(variant === 'stack' ? 'compact' : 'main');
   const padTop = insets.top + 4;
 
   const bell = (

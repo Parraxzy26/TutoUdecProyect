@@ -1,3 +1,6 @@
+"""
+Registro en Django Admin para operación y soporte (no es la API pública).
+"""
 from django.contrib import admin
 from .models import Tutor, Materia, Tutoria
 
@@ -56,6 +59,7 @@ class TutoriaAdmin(admin.ModelAdmin):
     )
     
     def get_readonly_fields(self, request, obj=None):
-        if obj:  # Editing existing object
+        # Evita cambiar participantes una vez creada la tutoría (integridad de datos).
+        if obj:
             return self.readonly_fields + ('tutor', 'estudiante')
         return self.readonly_fields

@@ -1,5 +1,7 @@
 """
-Django settings for backend project.
+Configuración Django del API TutoUdec: PostgreSQL, DRF, JWT, CORS.
+
+WARNING: credenciales y DEBUG deben externalizarse antes de producción.
 """
 
 from pathlib import Path
@@ -65,6 +67,9 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 
 # Database
+# Configuración especial:
+# este proyecto usa PostgreSQL como fuente principal de datos
+# (evita divergencias con instancias SQLite locales antiguas).
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
@@ -119,6 +124,7 @@ CORS_ALLOWED_ORIGINS = [
 
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_ALL_ORIGINS = True
+# WARNING: mantener en True solo para desarrollo local.
 
 
 # Django REST Framework Configuration
@@ -145,7 +151,8 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(hours=24),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
     'ROTATE_REFRESH_TOKENS': True,
-    # Sin token_blacklist en INSTALLED_APPS, evitar blacklist al rotar
+    # Decisión técnica: sin token_blacklist en INSTALLED_APPS,
+    # por eso se desactiva el blacklist al rotar refresh tokens.
     'BLACKLIST_AFTER_ROTATION': False,
     'UPDATE_LAST_LOGIN': True,
 }

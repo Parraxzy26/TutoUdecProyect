@@ -1,3 +1,6 @@
+/**
+ * Arranque de la SPA Vue: Pinia (estado) + Vue Router (navegación).
+ */
 import './assets/main.css'
 
 import { createApp } from 'vue'

@@ -1,3 +1,7 @@
+/**
+ * Contexto de sesión móvil: login/registro contra la API, tokens en AsyncStorage,
+ * rol de app (tutor/estudiante) para elegir pantalla de inicio.
+ */
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import api from '../services/api';
@@ -7,6 +11,7 @@ const AuthContext = createContext({});
 
 const ROLE_KEY = '@TutoUdec:role';
 
+/** Normaliza errores DRF/red a mensaje legible en Alert. */
 function formatApiError(error, fallback) {
   if (error.response?.data) {
     const d = error.response.data;

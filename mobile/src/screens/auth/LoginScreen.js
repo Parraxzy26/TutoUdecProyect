@@ -31,16 +31,24 @@ export default function LoginScreen({ navigation }) {
   const [loading, setLoading] = useState(false);
   const { signIn } = useAuth();
   const brandLogo = getLoginBrandLogoSize();
-  /** Zona superior: usa ~26–36% de la pantalla para marca sin desperdiciar el resto */
+  /**
+   * Regla de negocio de UX:
+   * la cabecera de marca debe ocupar espacio "visible" en móviles altos,
+   * pero sin empujar el formulario fuera de pantalla en dispositivos bajos.
+   */
   const brandMinHeight = Math.round(
     Math.min(Math.max(winH * 0.28, 150), winH * 0.38)
   );
 
   const handleLogin = async () => {
+    // Validación clave: evita llamadas a API con payload incompleto.
     if (!identifier.trim() || !password) {
       Alert.alert('Datos incompletos', 'Ingresa usuario o correo y contraseña.');
       return;
     }
+
+    // Manejo de error relevante: se delega la autenticación en AuthContext
+    // para mantener una sola fuente de verdad de sesión/tokens.
     setLoading(true);
     const result = await signIn(identifier.trim(), password);
     setLoading(false);
@@ -85,6 +93,7 @@ export default function LoginScreen({ navigation }) {
         showsVerticalScrollIndicator={false}
         bounces={false}
       >
+        {/* Flujo general: bloque de marca -> formulario -> acciones secundarias */}
         <View style={[styles.brandBlock, { minHeight: brandMinHeight }]}>
           <Image source={LOGO_H} style={brandLogo} resizeMode="contain" />
         </View>

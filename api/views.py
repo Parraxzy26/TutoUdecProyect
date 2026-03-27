@@ -1,4 +1,9 @@
-# Vistas que gestionan las operaciones CRUD.
+"""
+Vistas y ViewSets de la API REST (tutores, materias, tutorías, auth JWT).
+
+Permisos: muchos listados son públicos (AllowAny) para catálogo; acciones
+sensibles usan IsAuthenticated (p. ej. mis_tutorias).
+"""
 from rest_framework import viewsets, status, filters, generics
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
@@ -30,6 +35,7 @@ class RegisterView(APIView):
     permission_classes = [AllowAny]
     
     def post(self, request):
+        # Flujo de registro: validar payload, crear usuario y devolver JWT inicial.
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
@@ -76,6 +82,7 @@ class MateriaViewSet(viewsets.ModelViewSet):
     def tutores(self, request, pk=None):
         """Obtener todos los tutores de una materia"""
         materia = self.get_object()
+        # Regla de negocio: en catálogo público solo se listan tutores disponibles.
         tutores = materia.tutores.filter(disponible=True)
         serializer = TutorListSerializer(tutores, many=True)
         return Response(serializer.data)
@@ -95,6 +102,7 @@ class TutorViewSet(viewsets.ModelViewSet):
     ordering = ['-calificacion']
     
     def get_serializer_class(self):
+        # Decisión técnica: serializer liviano para listados y completo para detalle.
         if self.action == 'list':
             return TutorListSerializer
         return TutorSerializer
@@ -129,6 +137,7 @@ class TutorViewSet(viewsets.ModelViewSet):
     def estadisticas(self, request, pk=None):
         """Obtener estadísticas de un tutor"""
         tutor = self.get_object()
+        # Consulta agregada importante para tarjetas/resúmenes en frontend.
         tutorias_totales = tutor.tutorias.count()
         tutorias_completadas = tutor.tutorias.filter(estado='completada').count()
         tutorias_pendientes = tutor.tutorias.filter(estado='pendiente').count()
@@ -176,6 +185,7 @@ class TutoriaViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         """Al crear una tutoría, calcular la tarifa"""
         tutoria = serializer.save()
+        # Regla de negocio: si no llega tarifa explícita, se calcula por duración * valor hora.
         if not tutoria.tarifa and tutoria.tutor.tarifa_por_hora:
             duracion_horas = tutoria.duracion_minutos / 60
             tutoria.tarifa = tutoria.tutor.tarifa_por_hora * duracion_horas
@@ -184,6 +194,7 @@ class TutoriaViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])
     def mis_tutorias(self, request):
         """Obtener las tutorías del usuario actual"""
+        # Endpoint funcional para panel del estudiante autenticado.
         tutorias = Tutoria.objects.filter(estudiante=request.user)
         estado = request.query_params.get('estado')
         
@@ -197,6 +208,7 @@ class TutoriaViewSet(viewsets.ModelViewSet):
     def confirmar(self, request, pk=None):
         """Confirmar una tutoría"""
         tutoria = self.get_object()
+        # Validación de estado: solo se confirma desde "pendiente".
         if tutoria.estado != 'pendiente':
             return Response(
                 {'error': 'Solo se pueden confirmar tutorías pendientes'},
@@ -211,6 +223,7 @@ class TutoriaViewSet(viewsets.ModelViewSet):
     def iniciar(self, request, pk=None):
         """Iniciar una tutoría"""
         tutoria = self.get_object()
+        # Flujo de estados permitido: pendiente/confirmada -> en_progreso.
         if tutoria.estado not in ['pendiente', 'confirmada']:
             return Response(
                 {'error': 'La tutoría no puede ser iniciada en este estado'},
@@ -225,6 +238,7 @@ class TutoriaViewSet(viewsets.ModelViewSet):
     def completar(self, request, pk=None):
         """Completar una tutoría"""
         tutoria = self.get_object()
+        # Validación clave para evitar cierres inconsistentes.
         if tutoria.estado != 'en_progreso':
             return Response(
                 {'error': 'Solo se pueden completar tutorías en progreso'},
@@ -240,6 +254,7 @@ class TutoriaViewSet(viewsets.ModelViewSet):
     def cancelar(self, request, pk=None):
         """Cancelar una tutoría"""
         tutoria = self.get_object()
+        # Regla de negocio: no se permite cancelar tutorías ya en progreso o completadas.
         if tutoria.estado not in ['pendiente', 'confirmada']:
             return Response(
                 {'error': 'La tutoría no puede ser cancelada en este estado'},

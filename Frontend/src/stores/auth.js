@@ -1,3 +1,7 @@
+/**
+ * Estado global de autenticación (usuario + tokens vía api.js).
+ * Los tokens JWT viven en localStorage; el usuario se persiste aparte para UI.
+ */
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { authApi, setTokens, clearTokens, api } from '@/services/api';
@@ -27,6 +31,7 @@ export const useAuthStore = defineStore('auth', () => {
   const isAuthenticated = computed(() => !!user.value);
 
   async function login(username, password) {
+    // Login delegado al backend; tokens los guarda setTokens en api.js.
     const { data } = await authApi.login({ username, password });
     setTokens(data.access, data.refresh);
     persistUser(data.user);
