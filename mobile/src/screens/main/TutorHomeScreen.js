@@ -1,14 +1,7 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  Platform,
-  Image,
-} from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import AppHeader from '../../components/AppHeader';
 import { useAuth } from '../../context/AuthContext';
 import { C } from '../../theme/colors';
 
@@ -20,17 +13,14 @@ export default function TutorHomeScreen({ navigation }) {
   const name = [user?.first_name, user?.last_name].filter(Boolean).join(' ') || user?.username;
 
   return (
-    <ScrollView style={styles.root} contentContainerStyle={styles.content}>
-      <View style={styles.topBar}>
-        <View style={styles.topLeft}>
-          <Image source={{ uri: AVATAR }} style={styles.avatar} />
-          <Text style={styles.brand}>TutoUdec</Text>
-        </View>
-        <TouchableOpacity hitSlop={12}>
-          <MaterialCommunityIcons name="bell-outline" size={24} color={C.onSurface} />
-        </TouchableOpacity>
-      </View>
-
+    <View style={styles.root}>
+      <AppHeader
+        variant="home"
+        avatarUri={AVATAR}
+        onPressAvatar={() => navigation.navigate('Profile')}
+        onPressBell={() => {}}
+      />
+      <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
       <View style={styles.heroRow}>
         <View style={{ flex: 1 }}>
           <Text style={styles.kicker}>Panel tutor</Text>
@@ -89,31 +79,16 @@ export default function TutorHomeScreen({ navigation }) {
           <MaterialCommunityIcons name="arrow-right" size={18} color={C.onPrimary} />
         </View>
       </TouchableOpacity>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: C.surface },
+  scroll: { flex: 1 },
   content: { paddingBottom: 100, paddingHorizontal: 20 },
-  topBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingTop: Platform.OS === 'ios' ? 8 : 12,
-    marginBottom: 12,
-  },
-  topLeft: { flexDirection: 'row', alignItems: 'center' },
-  avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    borderWidth: 2,
-    borderColor: C.instGreen,
-    marginRight: 10,
-  },
-  brand: { fontSize: 20, fontWeight: '800', color: C.primary },
-  heroRow: { marginBottom: 20 },
+  heroRow: { marginBottom: 16 },
   kicker: { fontSize: 12, fontWeight: '700', color: C.primary, textTransform: 'uppercase', marginBottom: 4 },
   h1: { fontSize: 26, fontWeight: '800', color: C.onSurface, letterSpacing: -0.5 },
   h1Accent: { color: C.primary },

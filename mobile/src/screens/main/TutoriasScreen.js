@@ -7,10 +7,9 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   RefreshControl,
-  Platform,
-  Image,
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import AppHeader from '../../components/AppHeader';
 import { tutoriaService } from '../../services/api';
 import { C } from '../../theme/colors';
 
@@ -94,28 +93,33 @@ export default function TutoriasScreen({ navigation }) {
 
   if (loading) {
     return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color={C.instGreen} />
+      <View style={styles.root}>
+        <AppHeader
+          variant="home"
+          avatarUri={AVATAR}
+          onPressAvatar={() => navigation.navigate('Profile')}
+          onPressBell={() => {}}
+        />
+        <View style={styles.center}>
+          <ActivityIndicator size="large" color={C.instGreen} />
+        </View>
       </View>
     );
   }
 
   return (
-    <ScrollView
-      style={styles.root}
-      contentContainerStyle={styles.content}
-      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-    >
-      <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <Image source={{ uri: AVATAR }} style={styles.avatar} />
-          <Text style={styles.brand}>TutoUdec</Text>
-        </View>
-        <TouchableOpacity hitSlop={12}>
-          <MaterialCommunityIcons name="bell-outline" size={22} color={C.onSurface} />
-        </TouchableOpacity>
-      </View>
-
+    <View style={styles.root}>
+      <AppHeader
+        variant="home"
+        avatarUri={AVATAR}
+        onPressAvatar={() => navigation.navigate('Profile')}
+        onPressBell={() => {}}
+      />
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.content}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      >
       <Text style={styles.kicker}>Agenda académica</Text>
       <Text style={styles.monthTitle}>{monthLabel}</Text>
 
@@ -211,24 +215,16 @@ export default function TutoriasScreen({ navigation }) {
       <TouchableOpacity style={styles.fab} onPress={() => navigation.navigate('Tutores')}>
         <MaterialCommunityIcons name="plus" size={28} color={C.onSecondaryContainer} />
       </TouchableOpacity>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: C.surface },
+  scroll: { flex: 1 },
   content: { paddingBottom: 110, paddingHorizontal: 20 },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: C.surface },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingTop: Platform.OS === 'ios' ? 8 : 12,
-    marginBottom: 12,
-  },
-  headerLeft: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  avatar: { width: 40, height: 40, borderRadius: 20, borderWidth: 2, borderColor: C.instGreen },
-  brand: { fontSize: 20, fontWeight: '800', color: C.instGreen },
   kicker: {
     fontSize: 11,
     fontWeight: '800',

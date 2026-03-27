@@ -9,6 +9,7 @@ import {
   RefreshControl,
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import AppHeader from '../../components/AppHeader';
 import { materiaService } from '../../services/api';
 import { C } from '../../theme/colors';
 
@@ -67,19 +68,22 @@ const MateriasScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.pageHeader}>
-        <TouchableOpacity
-          onPress={() =>
-            navigation.canGoBack() ? navigation.goBack() : navigation.navigate('Home')
-          }
-          style={styles.backBtn}
-        >
-          <MaterialCommunityIcons name="arrow-left" size={22} color={C.onSurface} />
-        </TouchableOpacity>
-        <Text style={styles.pageTitle}>Materias</Text>
-        <View style={{ width: 40 }} />
-      </View>
+      <AppHeader
+        variant="stack"
+        left={
+          <TouchableOpacity
+            onPress={() =>
+              navigation.canGoBack() ? navigation.goBack() : navigation.navigate('Home')
+            }
+            style={styles.backBtn}
+          >
+            <MaterialCommunityIcons name="arrow-left" size={22} color={C.onSurface} />
+          </TouchableOpacity>
+        }
+        right={<View />}
+      />
       <FlatList
+        style={styles.listFlex}
         data={materias}
         renderItem={renderMateria}
         keyExtractor={(item) => item.id.toString()}
@@ -89,6 +93,9 @@ const MateriasScreen = ({ navigation }) => {
         }
         ListEmptyComponent={
           <Text style={styles.empty}>No hay materias disponibles</Text>
+        }
+        ListHeaderComponent={
+          <Text style={styles.pageTitle}>Materias</Text>
         }
       />
     </View>
@@ -100,16 +107,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: C.surface,
   },
-  pageHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingTop: 48,
-    paddingBottom: 12,
-  },
+  listFlex: { flex: 1 },
   backBtn: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
-  pageTitle: { fontSize: 20, fontWeight: '800', color: C.primary },
+  pageTitle: { fontSize: 20, fontWeight: '800', color: C.primary, marginBottom: 12 },
   center: {
     flex: 1,
     justifyContent: 'center',

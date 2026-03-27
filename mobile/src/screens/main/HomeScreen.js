@@ -6,12 +6,11 @@ import {
   ScrollView,
   TouchableOpacity,
   RefreshControl,
-  Platform,
-  Image,
   FlatList,
   TextInput,
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import AppHeader from '../../components/AppHeader';
 import { useAuth } from '../../context/AuthContext';
 import { tutorService, materiaService, tutoriaService } from '../../services/api';
 import { C } from '../../theme/colors';
@@ -69,22 +68,19 @@ export default function HomeScreen({ navigation }) {
   const learningData = materias.slice(0, 5);
 
   return (
-    <ScrollView
-      style={styles.root}
-      contentContainerStyle={styles.content}
-      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-      showsVerticalScrollIndicator={false}
-    >
-      <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <Image source={{ uri: STUDENT_AVATAR }} style={styles.avatar} />
-          <Text style={styles.brand}>TutoUdec</Text>
-        </View>
-        <TouchableOpacity hitSlop={12}>
-          <MaterialCommunityIcons name="bell-outline" size={24} color={C.onSurface} />
-        </TouchableOpacity>
-      </View>
-
+    <View style={styles.root}>
+      <AppHeader
+        variant="home"
+        avatarUri={STUDENT_AVATAR}
+        onPressAvatar={() => navigation.navigate('Profile')}
+        onPressBell={() => {}}
+      />
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.content}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+        showsVerticalScrollIndicator={false}
+      >
       <View style={styles.welcomeRow}>
         <View style={{ flex: 1 }}>
           <Text style={styles.welcomeKicker}>Bienvenido,</Text>
@@ -237,26 +233,18 @@ export default function HomeScreen({ navigation }) {
       <TouchableOpacity style={styles.fab} onPress={() => navigation.navigate('Tutores')} activeOpacity={0.9}>
         <MaterialCommunityIcons name="plus" size={28} color={C.onSecondaryContainer} />
       </TouchableOpacity>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: C.surface },
+  scroll: { flex: 1 },
   content: { paddingBottom: 110, paddingHorizontal: 20 },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingTop: Platform.OS === 'ios' ? 8 : 12,
-    marginBottom: 8,
-  },
-  headerLeft: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  avatar: { width: 40, height: 40, borderRadius: 20, borderWidth: 2, borderColor: C.primary },
-  brand: { fontSize: 20, fontWeight: '800', color: C.primary, letterSpacing: -0.5 },
-  welcomeRow: { marginBottom: 14 },
+  welcomeRow: { marginBottom: 10 },
   welcomeKicker: { fontSize: 12, fontWeight: '600', color: C.primary, textTransform: 'uppercase' },
-  welcomeName: { fontSize: 28, fontWeight: '800', color: C.onSurface, letterSpacing: -0.5 },
+  welcomeName: { fontSize: 24, fontWeight: '800', color: C.onSurface, letterSpacing: -0.5 },
   searchWrap: {
     flexDirection: 'row',
     alignItems: 'center',

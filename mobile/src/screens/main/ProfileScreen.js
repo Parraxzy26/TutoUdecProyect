@@ -5,10 +5,10 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  Platform,
   Image,
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import AppHeader from '../../components/AppHeader';
 import { useAuth } from '../../context/AuthContext';
 import { C } from '../../theme/colors';
 
@@ -21,17 +21,21 @@ export default function ProfileScreen({ navigation }) {
     [user?.first_name, user?.last_name].filter(Boolean).join(' ') || user?.username || '—';
 
   return (
-    <ScrollView style={styles.root} contentContainerStyle={styles.content}>
-      <View style={styles.topBar}>
-        <TouchableOpacity style={styles.iconBtn} onPress={() => navigation.navigate('Home')}>
-          <MaterialCommunityIcons name="arrow-left" size={22} color={C.onSurface} />
-        </TouchableOpacity>
-        <Text style={styles.brand}>TutoUdec</Text>
-        <TouchableOpacity hitSlop={12}>
-          <Image source={{ uri: AVATAR }} style={styles.miniAvatar} />
-        </TouchableOpacity>
-      </View>
-
+    <View style={styles.root}>
+      <AppHeader
+        variant="stack"
+        left={
+          <TouchableOpacity style={styles.iconBtn} onPress={() => navigation.navigate('Home')}>
+            <MaterialCommunityIcons name="arrow-left" size={22} color={C.onSurface} />
+          </TouchableOpacity>
+        }
+        right={
+          <TouchableOpacity hitSlop={12}>
+            <Image source={{ uri: AVATAR }} style={styles.miniAvatar} />
+          </TouchableOpacity>
+        }
+      />
+      <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
       <View style={styles.hero}>
         <Image source={{ uri: AVATAR }} style={styles.coverImg} />
         <View style={styles.ratingBadge}>
@@ -74,23 +78,16 @@ export default function ProfileScreen({ navigation }) {
         <MaterialCommunityIcons name="logout" size={20} color={C.onPrimary} />
         <Text style={styles.logoutText}>Cerrar sesión</Text>
       </TouchableOpacity>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: C.surface },
+  scroll: { flex: 1 },
   content: { paddingBottom: 100 },
-  topBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingTop: Platform.OS === 'ios' ? 48 : 36,
-    paddingBottom: 12,
-  },
   iconBtn: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
-  brand: { fontSize: 20, fontWeight: '800', color: C.primary },
   miniAvatar: { width: 36, height: 36, borderRadius: 18 },
   hero: { alignSelf: 'center', marginTop: 8 },
   coverImg: {

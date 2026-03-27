@@ -10,12 +10,16 @@ import {
   Platform,
   ScrollView,
   Pressable,
+  Image,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import LOGO_H from '../../assets/tutoudec-logo-horizontal.png';
 import { C } from '../../theme/colors';
 import DecorativeBackground from '../../components/DecorativeBackground';
 
 export default function ForgotPasswordScreen({ navigation }) {
+  const insets = useSafeAreaInsets();
   const [email, setEmail] = useState('');
 
   const onSubmit = () => {
@@ -33,11 +37,11 @@ export default function ForgotPasswordScreen({ navigation }) {
   return (
     <KeyboardAvoidingView style={styles.root} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <DecorativeBackground />
-      <View style={styles.topBar}>
+      <View style={[styles.topBar, { paddingTop: insets.top + 8 }]}>
         <Pressable style={styles.iconBtn} onPress={() => navigation.goBack()} hitSlop={12}>
           <MaterialCommunityIcons name="arrow-left" size={22} color={C.tertiary} />
         </Pressable>
-        <Text style={styles.brandTop}>TutoUdec</Text>
+        <Image source={LOGO_H} style={styles.topLogo} resizeMode="contain" />
         <View style={{ width: 40 }} />
       </View>
 
@@ -83,10 +87,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    paddingTop: Platform.OS === 'ios' ? 56 : 36,
     paddingBottom: 8,
     backgroundColor: 'rgba(255,255,255,0.92)',
   },
+  topLogo: { width: 150, height: 40, maxWidth: '58%' },
   iconBtn: {
     width: 40,
     height: 40,
@@ -94,12 +98,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  brandTop: {
-    fontSize: 18,
-    fontWeight: '800',
-    color: C.primary,
-  },
-  body: { padding: 24, paddingTop: 16 },
+  body: { padding: 16, paddingTop: 16 },
   h2: {
     fontSize: 28,
     fontWeight: '800',
@@ -112,6 +111,9 @@ const styles = StyleSheet.create({
     backgroundColor: C.surfaceContainerLowest,
     borderRadius: 16,
     padding: 22,
+    width: '100%',
+    maxWidth: 430,
+    alignSelf: 'center',
     shadowColor: '#000',
     shadowOpacity: 0.06,
     shadowOffset: { width: 0, height: 12 },
@@ -152,6 +154,6 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   primaryBtnText: { color: C.onPrimary, fontSize: 16, fontWeight: '800' },
-  backLink: { marginTop: 28, alignItems: 'center' },
+  backLink: { marginTop: 28, alignItems: 'center', width: '100%', maxWidth: 430, alignSelf: 'center' },
   backLinkText: { color: C.primary, fontWeight: '600', fontSize: 14 },
 });

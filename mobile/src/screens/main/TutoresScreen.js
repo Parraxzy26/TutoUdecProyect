@@ -8,10 +8,9 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   RefreshControl,
-  Platform,
-  Image,
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import AppHeader from '../../components/AppHeader';
 import { tutorService } from '../../services/api';
 import { C } from '../../theme/colors';
 
@@ -115,15 +114,12 @@ export default function TutoresScreen({ navigation, route }) {
 
   return (
     <View style={styles.root}>
-      <View style={styles.top}>
-        <View style={styles.topLeft}>
-          <Image source={{ uri: AVATAR }} style={styles.avatar} />
-          <Text style={styles.brand}>TutoUdec</Text>
-        </View>
-        <TouchableOpacity hitSlop={12}>
-          <MaterialCommunityIcons name="bell-outline" size={22} color={C.primary} />
-        </TouchableOpacity>
-      </View>
+      <AppHeader
+        variant="home"
+        avatarUri={AVATAR}
+        onPressAvatar={() => navigation.navigate('Profile')}
+        onPressBell={() => {}}
+      />
 
       <Text style={styles.h2}>Busca tu tutor</Text>
 
@@ -179,17 +175,7 @@ export default function TutoresScreen({ navigation, route }) {
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: C.surface, paddingHorizontal: 20 },
-  top: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingTop: Platform.OS === 'ios' ? 8 : 12,
-    marginBottom: 12,
-  },
-  topLeft: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  avatar: { width: 32, height: 32, borderRadius: 16, backgroundColor: C.surfaceContainerHigh },
-  brand: { fontSize: 20, fontWeight: '800', color: C.primary },
-  h2: { fontSize: 26, fontWeight: '800', color: C.onSurface, marginBottom: 16 },
+  h2: { fontSize: 22, fontWeight: '800', color: C.onSurface, marginBottom: 12, marginTop: 4 },
   searchWrap: {
     flexDirection: 'row',
     alignItems: 'center',

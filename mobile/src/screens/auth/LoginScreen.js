@@ -12,21 +12,29 @@ import {
   ScrollView,
   Image,
   Pressable,
+  useWindowDimensions,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
 import { C } from '../../theme/colors';
 import DecorativeBackground from '../../components/DecorativeBackground';
-
-const LOGO_URI =
-  'https://lh3.googleusercontent.com/aida-public/AB6AXuB1jbmQneEXSySHL1Ttnanoc29N-wKzF-5pK5TlXl4J-yYObxL-IRB9lnG99-EBMUEFlGQUBpBhBzNC_ew77EpXzPFl-nxlDNTmwQIlM7iw0fru9TLu3im2iVB9gNxPL6aa5lMLip639WEnSxO96qBiCrYLsr64Sc0K4VUrK8nGriUjwG-XTwQX3F0YcPVhIKcJ9oMFHAL6sKah8cZRQrUeYQE2-ZDGi48ZTi4sHsHv0yE6f3EHLX_COMN6rJQk7W3HP64_4jlhWZ0';
+import LOGO_H from '../../assets/tutoudec-logo-horizontal.png';
+import { getLoginBrandLogoSize } from '../../components/AppHeader';
 
 export default function LoginScreen({ navigation }) {
+  const insets = useSafeAreaInsets();
+  const { height: winH } = useWindowDimensions();
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
   const { signIn } = useAuth();
+  const brandLogo = getLoginBrandLogoSize();
+  /** Zona superior: usa ~26–36% de la pantalla para marca sin desperdiciar el resto */
+  const brandMinHeight = Math.round(
+    Math.min(Math.max(winH * 0.28, 150), winH * 0.38)
+  );
 
   const handleLogin = async () => {
     if (!identifier.trim() || !password) {
@@ -45,42 +53,44 @@ export default function LoginScreen({ navigation }) {
     <KeyboardAvoidingView
       style={styles.root}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? insets.top + 6 : 0}
     >
       <DecorativeBackground />
-      <View style={styles.topBar}>
+      {/* Solo navegación; el logo (incluye textos) va en la zona central */}
+      <View style={[styles.topBar, { paddingTop: insets.top + 6 }]}>
         {navigation.canGoBack() ? (
           <Pressable
             style={styles.iconBtn}
             onPress={() => navigation.goBack()}
             hitSlop={12}
           >
-            <MaterialCommunityIcons name="arrow-left" size={22} color={C.tertiary} />
+            <MaterialCommunityIcons name="arrow-left" size={24} color={C.tertiary} />
           </Pressable>
         ) : (
-          <View style={{ width: 40 }} />
+          <View style={styles.topBarPad} />
         )}
-        <Text style={styles.brandTop}>TutoUdec</Text>
-        <View style={{ width: 40 }} />
+        <View style={styles.topBarPad} />
       </View>
 
       <ScrollView
-        contentContainerStyle={styles.scroll}
+        style={styles.scroll}
+        contentContainerStyle={[
+          styles.scrollContent,
+          {
+            paddingBottom: Math.max(insets.bottom, 10) + 20,
+            minHeight: winH - insets.top - insets.bottom - 52,
+          },
+        ]}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
+        bounces={false}
       >
-        <View style={styles.hero}>
-          <View style={styles.logoGlow} />
-          <View style={styles.logoBox}>
-            <Image source={{ uri: LOGO_URI }} style={styles.logoImg} resizeMode="contain" />
-          </View>
-          <Text style={styles.title}>TutoUdec</Text>
-          <Text style={styles.tagline}>
-            Tu red de tutorías académicas de excelencia
-          </Text>
+        <View style={[styles.brandBlock, { minHeight: brandMinHeight }]}>
+          <Image source={LOGO_H} style={brandLogo} resizeMode="contain" />
         </View>
 
         <View style={styles.form}>
-          <Text style={styles.label}>Usuario o correo</Text>
+          <Text style={[styles.label, styles.labelFirst]}>Usuario o correo</Text>
           <View style={styles.inputWrap}>
             <MaterialCommunityIcons
               name="account-outline"
@@ -166,79 +176,49 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingTop: Platform.OS === 'ios' ? 56 : 36,
-    paddingBottom: 8,
-    backgroundColor: 'rgba(255,255,255,0.92)',
+    paddingHorizontal: 8,
+    paddingBottom: 4,
+    zIndex: 1,
   },
+  topBarPad: { width: 44, height: 40 },
   iconBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  brandTop: {
-    fontSize: 18,
-    fontWeight: '800',
-    color: C.primary,
-    letterSpacing: -0.5,
+  scroll: { flex: 1 },
+  scrollContent: {
+    flexGrow: 1,
+    paddingHorizontal: 20,
+    paddingTop: 4,
   },
-  scroll: {
-    paddingHorizontal: 28,
-    paddingBottom: 40,
-    paddingTop: 8,
-  },
-  hero: {
-    alignItems: 'center',
-    marginBottom: 28,
-  },
-  logoGlow: {
-    position: 'absolute',
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: C.primary,
-    opacity: 0.08,
-    top: 8,
-  },
-  logoBox: {
-    width: 88,
-    height: 88,
-    borderRadius: 16,
-    backgroundColor: C.surfaceContainerLowest,
-    alignItems: 'center',
+  brandBlock: {
+    flexGrow: 1,
     justifyContent: 'center',
-    padding: 10,
-    borderWidth: 1,
-    borderColor: C.outlineVariant + '33',
-    marginBottom: 16,
+    alignItems: 'center',
+    paddingVertical: 12,
+    width: '100%',
+    maxWidth: 440,
+    alignSelf: 'center',
   },
-  logoImg: { width: 68, height: 68 },
-  title: {
-    fontSize: 34,
-    fontWeight: '800',
-    color: C.primary,
-    letterSpacing: -1,
+  form: {
+    width: '100%',
+    maxWidth: 440,
+    alignSelf: 'center',
+    flexShrink: 0,
   },
-  tagline: {
-    marginTop: 6,
-    fontSize: 14,
-    color: C.onSurfaceVariant,
-    textAlign: 'center',
-    maxWidth: 280,
-    lineHeight: 20,
-  },
-  form: { gap: 6 },
   label: {
-    marginTop: 10,
-    marginLeft: 6,
+    marginTop: 12,
+    marginLeft: 4,
     fontSize: 11,
     fontWeight: '700',
     color: C.onSurfaceVariant,
-    letterSpacing: 0.6,
+    letterSpacing: 0.5,
     textTransform: 'uppercase',
   },
+  labelFirst: { marginTop: 0 },
   inputWrap: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -249,7 +229,7 @@ const styles = StyleSheet.create({
   inputIcon: { marginLeft: 14 },
   input: {
     flex: 1,
-    paddingVertical: 16,
+    paddingVertical: 15,
     paddingHorizontal: 12,
     fontSize: 16,
     color: C.onSurface,
@@ -259,13 +239,13 @@ const styles = StyleSheet.create({
   primaryBtn: {
     backgroundColor: C.primaryContainer,
     borderRadius: 999,
-    paddingVertical: 16,
+    paddingVertical: 15,
     alignItems: 'center',
-    marginTop: 20,
+    marginTop: 18,
     shadowColor: C.primary,
-    shadowOpacity: 0.25,
-    shadowOffset: { width: 0, height: 8 },
-    shadowRadius: 16,
+    shadowOpacity: 0.22,
+    shadowOffset: { width: 0, height: 6 },
+    shadowRadius: 12,
     elevation: 4,
   },
   primaryBtnDisabled: { opacity: 0.7 },
@@ -274,7 +254,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '800',
   },
-  linkRow: { alignItems: 'center', marginTop: 20 },
+  linkRow: { alignItems: 'center', marginTop: 16 },
   linkSecondary: {
     color: C.secondary,
     fontWeight: '600',
@@ -284,7 +264,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 20,
+    marginTop: 16,
+    paddingBottom: 6,
     flexWrap: 'wrap',
   },
   muted: { color: C.onSurfaceVariant, fontSize: 14 },
