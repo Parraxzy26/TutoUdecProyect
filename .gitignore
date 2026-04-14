@@ -1,0 +1,44 @@
+# Python / Django
+__pycache__/
+*.py[cod]
+*$py.class
+.env
+.env.*
+db.sqlite3
+media/
+staticfiles/
+venv/
+*.log
+
+# Node / Frontend Web
+node_modules/
+dist/
+build/
+.next/
+out/
+*.log
+npm-debug.log*
+.DS_Store
+
+# Mobile React Native / Expo
+.expo/
+.expo-shared/
+dist/
+npm-debug.log
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+
+# IDE / OS
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Git
+.git/index.lock
