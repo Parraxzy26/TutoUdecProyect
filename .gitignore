@@ -1,7 +1,25 @@
+# Python / Django
+__pycache__/
+*.py[cod]
+*$py.class
 .env
 db.sqlite3
-__pycache__/
-*.pyc
-venv/
+media/
+staticfiles/
+
+# Node / Frontend / Mobile
 node_modules/
-**/node_modules/
+.expo/
+dist/
+build/
+.next/
+out/
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+*.log
+
+# Git
+.git/index.lock
