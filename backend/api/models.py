@@ -83,3 +83,46 @@ class Tutoria(models.Model):
             duracion = (self.fecha_fin - self.fecha_inicio).total_seconds() / 60
             self.duracion_minutos = int(duracion)
         super().save(*args, **kwargs)
+
+
+class Disponibilidad(models.Model):
+    DIAS_SEMANA = [
+        (0, 'Lunes'),
+        (1, 'Martes'),
+        (2, 'Miércoles'),
+        (3, 'Jueves'),
+        (4, 'Viernes'),
+        (5, 'Sábado'),
+        (6, 'Domingo'),
+    ]
+
+    tutor = models.ForeignKey(Tutor, on_delete=models.CASCADE, related_name='disponibilidades')
+    dia_semana = models.IntegerField(choices=DIAS_SEMANA)
+    hora_inicio = models.TimeField()
+    hora_fin = models.TimeField()
+    activo = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ['dia_semana', 'hora_inicio']
+        verbose_name = 'Disponibilidad'
+        verbose_name_plural = 'Disponibilidades'
+
+    def __str__(self):
+        return f"{self.tutor.usuario.username} - {self.get_dia_semana_display()} {self.hora_inicio}-{self.hora_fin}"
+
+
+class Resena(models.Model):
+    tutor = models.ForeignKey(Tutor, on_delete=models.CASCADE, related_name='resenas')
+    estudiante = models.ForeignKey(User, on_delete=models.CASCADE, related_name='resenas')
+    tutoria = models.ForeignKey(Tutoria, on_delete=models.SET_NULL, null=True, blank=True, related_name='resenas')
+    calificacion = models.FloatField(validators=[MinValueValidator(0), MaxValueValidator(5)])
+    comentario = models.TextField(blank=True, null=True)
+    creado_en = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-creado_en']
+        verbose_name = 'Reseña'
+        verbose_name_plural = 'Reseñas'
+
+    def __str__(self):
+        return f"Reseña de {self.estudiante.username} para {self.tutor.usuario.username}"

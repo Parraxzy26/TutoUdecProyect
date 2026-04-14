@@ -8,7 +8,7 @@ import { Platform } from 'react-native';
  * - Emulador Android: 10.0.2.2
  */
 /** IP de respaldo si Expo no expone hostUri (dispositivo físico en LAN). */
-const DEFAULT_LAN_HOST = '192.168.1.8';
+const DEFAULT_LAN_HOST = '192.168.1.7';
 
 /** Resuelve host para construir URL cuando no hay variable de entorno explícita. */
 function resolveHost() {

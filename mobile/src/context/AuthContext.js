@@ -74,13 +74,16 @@ export const AuthProvider = ({ children }) => {
       });
 
       const { access, refresh, user: userData } = response.data;
+      const role = userData.role || 'estudiante';
 
       await AsyncStorage.setItem('@TutoUdec:token', access);
       await AsyncStorage.setItem('@TutoUdec:refreshToken', refresh);
       await AsyncStorage.setItem('@TutoUdec:user', JSON.stringify(userData));
+      await AsyncStorage.setItem(ROLE_KEY, role);
 
       setToken(access);
       setUser(userData);
+      setAppRole(role);
       api.defaults.headers.common.Authorization = `Bearer ${access}`;
 
       return { success: true };
@@ -94,14 +97,17 @@ export const AuthProvider = ({ children }) => {
 
   const signUp = async (userData, options = {}) => {
     try {
-      const response = await api.post('/auth/register/', userData);
+      const role = options.appRole === 'tutor' ? 'tutor' : 'estudiante';
+      const response = await api.post('/auth/register/', {
+        ...userData,
+        role,
+      });
       const { access, refresh, user: newUser } = response.data;
 
       await AsyncStorage.setItem('@TutoUdec:token', access);
       await AsyncStorage.setItem('@TutoUdec:refreshToken', refresh);
       await AsyncStorage.setItem('@TutoUdec:user', JSON.stringify(newUser));
 
-      const role = options.appRole === 'tutor' ? 'tutor' : 'estudiante';
       await AsyncStorage.setItem(ROLE_KEY, role);
       setAppRole(role);
 

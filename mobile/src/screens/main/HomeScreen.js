@@ -83,7 +83,7 @@ export default function HomeScreen({ navigation }) {
       >
       <View style={styles.welcomeRow}>
         <View style={{ flex: 1 }}>
-          <Text style={styles.welcomeKicker}>Bienvenido,</Text>
+          <Text style={styles.welcomeKicker}>WELCOME BACK,</Text>
           <Text style={styles.welcomeName}>{displayName}!</Text>
         </View>
       </View>
@@ -92,7 +92,7 @@ export default function HomeScreen({ navigation }) {
         <MaterialCommunityIcons name="magnify" size={22} color={C.outline} style={styles.searchIcon} />
         <TextInput
           style={styles.searchInput}
-          placeholder="Buscar materias o tutores…"
+          placeholder="Search subjects or tutors..."
           placeholderTextColor={C.outline}
           value={search}
           onChangeText={setSearch}
@@ -104,9 +104,9 @@ export default function HomeScreen({ navigation }) {
       </View>
 
       <View style={styles.sectionHead}>
-        <Text style={styles.sectionTitle}>Tu ruta de aprendizaje</Text>
+        <Text style={styles.sectionTitle}>Your Learning Path</Text>
         <TouchableOpacity onPress={() => navigation.navigate('Materias')}>
-          <Text style={styles.link}>Ver todo</Text>
+          <Text style={styles.link}>View all</Text>
         </TouchableOpacity>
       </View>
 
@@ -120,31 +120,25 @@ export default function HomeScreen({ navigation }) {
           <TouchableOpacity
             style={[
               styles.pathCard,
-              index === 0 && styles.pathCardActive,
+              { backgroundColor: index % 2 === 0 ? '#006D32' : '#34A853' },
               { marginRight: 12 },
             ]}
             onPress={() => navigation.navigate('Materias')}
             activeOpacity={0.9}
           >
             <View style={styles.pathCardTop}>
-              <View style={[styles.pathIcon, index === 0 && styles.pathIconActive]}>
-                <MaterialCommunityIcons
-                  name="book-open-variant"
-                  size={22}
-                  color={index === 0 ? C.onPrimary : C.primary}
-                />
+              <View style={styles.pathIcon}>
+                <Text style={styles.pathIconText}>{item.nombre.charAt(0)}</Text>
               </View>
-              {index === 0 ? (
-                <View style={styles.badgeActive}>
-                  <Text style={styles.badgeActiveText}>ACTIVA</Text>
-                </View>
-              ) : null}
+              <View style={styles.badgeActive}>
+                <Text style={styles.badgeActiveText}>ACTIVE</Text>
+              </View>
             </View>
-            <Text style={[styles.pathTitle, index === 0 && styles.pathTitleOnPrimary]} numberOfLines={2}>
+            <Text style={styles.pathTitle} numberOfLines={2}>
               {item.nombre}
             </Text>
-            <Text style={[styles.pathSub, index === 0 && styles.pathSubOnPrimary]}>
-              {item.total_tutorias ?? 0} tutorías
+            <Text style={styles.pathSub}>
+              {item.total_tutorias ?? 0} sessions completed
             </Text>
           </TouchableOpacity>
         )}
@@ -154,9 +148,9 @@ export default function HomeScreen({ navigation }) {
       />
 
       <View style={styles.sectionHead}>
-        <Text style={styles.sectionTitle}>Próximas tutorías</Text>
+        <Text style={styles.sectionTitle}>Your Upcoming Tutorias</Text>
         <TouchableOpacity onPress={() => navigation.navigate('Tutorias')}>
-          <Text style={styles.link}>Calendario</Text>
+          <Text style={styles.link}>Calendar</Text>
         </TouchableOpacity>
       </View>
 
@@ -181,17 +175,21 @@ export default function HomeScreen({ navigation }) {
                 <Text style={styles.sessionDia}>{dia}</Text>
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={styles.sessionTitle}>{t.materia_nombre || 'Tutoría'}</Text>
+                <Text style={styles.sessionTitle}>{t.materia_nombre || 'Tutoria'}</Text>
                 <Text style={styles.sessionMeta}>
-                  <MaterialCommunityIcons name="clock-outline" size={14} color={C.tertiary} />{' '}
-                  {d ? d.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' }) : ''}{' '}
-                  · {t.estado}
+                  {d ? d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }) : ''} - {t.duracion_minutos ? new Date(d.getTime() + t.duracion_minutos*60000).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }) : ''}
+                </Text>
+                <Text style={styles.sessionMeta}>
+                  {t.lugar || 'Online'}
                 </Text>
               </View>
-              <View style={{ alignItems: 'flex-end', gap: 6 }}>
-                <Text style={styles.tutorChip}>{t.tutor_nombre || 'Tutor'}</Text>
-                <View style={styles.smallBtn}>
-                  <Text style={styles.smallBtnText}>DETALLE</Text>
+              <View style={{ alignItems: 'center', gap: 8 }}>
+                <View style={styles.tutorAvatarSmall}>
+                  <MaterialCommunityIcons name="account" size={16} color="#fff" />
+                  <View style={styles.tutorBadge} />
+                </View>
+                <View style={[styles.smallBtn, { backgroundColor: '#006D32' }]}>
+                  <Text style={styles.smallBtnText}>JOIN SESSION</Text>
                 </View>
               </View>
             </TouchableOpacity>
@@ -199,8 +197,23 @@ export default function HomeScreen({ navigation }) {
         })
       )}
 
+      <View style={styles.helpCenter}>
+        <View style={styles.helpTextContainer}>
+          <Text style={styles.helpTitle}>Tutor Help Center</Text>
+          <Text style={styles.helpDesc}>
+            Access pedagogy resources, manage your payment methods, or contact technical support for your digital classroom.
+          </Text>
+          <TouchableOpacity style={styles.helpBtn}>
+            <Text style={styles.helpBtnText}>Get Support Now →</Text>
+          </TouchableOpacity>
+        </View>
+        <View style={styles.helpIconBox}>
+          <MaterialCommunityIcons name="lightbulb-on-outline" size={40} color="rgba(255,255,255,0.3)" />
+        </View>
+      </View>
+
       <View style={styles.sectionHead}>
-        <Text style={styles.sectionTitle}>Tutores destacados</Text>
+        <Text style={styles.sectionTitle}>Top Rated Tutors</Text>
       </View>
       {tutores.slice(0, 2).map((tutor) => (
         <TouchableOpacity
@@ -215,23 +228,30 @@ export default function HomeScreen({ navigation }) {
             </View>
             <View style={{ flex: 1 }}>
               <Text style={styles.tutorName}>{tutor.usuario_nombre || 'Tutor'}</Text>
-              <Text style={styles.tutorSpec}>{tutor.especialidad}</Text>
+              <View style={styles.tagRow}>
+                <View style={styles.tag}><Text style={styles.tagText}>MATH</Text></View>
+                <View style={styles.tag}><Text style={styles.tagText}>STATS</Text></View>
+              </View>
               <View style={styles.starRow}>
-                <MaterialCommunityIcons name="star" size={16} color={C.secondary} />
+                <MaterialCommunityIcons name="star" size={16} color="#FBC02D" />
                 <Text style={styles.starText}>
-                  {Number(tutor.calificacion ?? 0).toFixed(1)} · ${tutor.tarifa_por_hora}/h
+                  {Number(tutor.calificacion ?? 0).toFixed(1)} ({tutor.total_tutorias ?? 0} reviews)
                 </Text>
               </View>
             </View>
+            <TouchableOpacity style={styles.viewProfileBtn}>
+              <Text style={styles.viewProfileBtnText}>View Profile</Text>
+            </TouchableOpacity>
           </View>
-          <TouchableOpacity style={styles.tutorCta} onPress={() => navigation.navigate('Tutores')}>
-            <Text style={styles.tutorCtaText}>Ver perfil</Text>
-          </TouchableOpacity>
         </TouchableOpacity>
       ))}
 
-      <TouchableOpacity style={styles.fab} onPress={() => navigation.navigate('Tutores')} activeOpacity={0.9}>
-        <MaterialCommunityIcons name="plus" size={28} color={C.onSecondaryContainer} />
+      <TouchableOpacity
+        style={styles.fabYellow}
+        onPress={() => navigation.navigate('Tutores')}
+        activeOpacity={0.9}
+      >
+        <MaterialCommunityIcons name="plus" size={32} color="#333" />
       </TouchableOpacity>
       </ScrollView>
     </View>
@@ -239,152 +259,139 @@ export default function HomeScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: C.surface },
+  root: { flex: 1, backgroundColor: '#fff' },
   scroll: { flex: 1 },
-  content: { paddingBottom: 110, paddingHorizontal: 20 },
-  welcomeRow: { marginBottom: 10 },
-  welcomeKicker: { fontSize: 12, fontWeight: '600', color: C.primary, textTransform: 'uppercase' },
-  welcomeName: { fontSize: 24, fontWeight: '800', color: C.onSurface, letterSpacing: -0.5 },
+  content: { paddingBottom: 120, paddingHorizontal: 20 },
+  welcomeRow: { marginTop: 20, marginBottom: 24 },
+  welcomeKicker: { fontSize: 12, fontWeight: 'bold', color: '#999', letterSpacing: 1 },
+  welcomeName: { fontSize: 28, fontWeight: 'bold', color: '#333', marginTop: 4 },
   searchWrap: {
     flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: C.surfaceContainerHighest,
-    borderRadius: 999,
-    paddingHorizontal: 14,
-    marginBottom: 22,
+    alignItems: 'center', 
+    backgroundColor: '#F0F0F0',
+    borderRadius: 20,
+    height: 56,
+    paddingHorizontal: 16,
+    marginBottom: 32,
   },
-  searchIcon: { marginRight: 4 },
-  searchInput: { flex: 1, paddingVertical: 14, fontSize: 15, color: C.onSurface },
+  searchIcon: { marginRight: 12 },
+  searchInput: { flex: 1, fontSize: 16, color: '#333' },
   sectionHead: {
-    flexDirection: 'row',
+    flexDirection: 'row', 
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 16,
     marginTop: 8,
   },
-  sectionTitle: { fontSize: 20, fontWeight: '800', color: C.onSurface },
-  link: { fontSize: 14, fontWeight: '700', color: C.primary },
+  sectionTitle: { fontSize: 18, fontWeight: 'bold', color: '#333' },
+  link: { fontSize: 14, color: '#34A853', fontWeight: 'bold' },
   pathCard: {
-    width: 260,
-    minHeight: 140,
+    width: 160,
+    height: 180,
     borderRadius: 24,
-    padding: 18,
-    backgroundColor: C.surfaceContainerLowest,
-    borderWidth: 1,
-    borderColor: C.outlineVariant + '44',
+    padding: 20,
     justifyContent: 'space-between',
   },
-  pathCardActive: {
-    backgroundColor: C.primaryContainer,
-    borderColor: 'transparent',
-  },
-  pathCardTop: { flexDirection: 'row', justifyContent: 'space-between' },
+  pathCardTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
   pathIcon: {
-    width: 44,
-    height: 44,
+    width: 40,
+    height: 40, 
     borderRadius: 12,
-    backgroundColor: C.primary + '18',
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    justifyContent: 'center', 
     alignItems: 'center',
-    justifyContent: 'center',
   },
-  pathIconActive: { backgroundColor: 'rgba(255,255,255,0.2)' },
+  pathIconText: { color: '#fff', fontSize: 18, fontWeight: 'bold' },
   badgeActive: {
-    backgroundColor: C.secondaryContainer,
+    backgroundColor: 'rgba(255,255,255,0.2)',
     paddingHorizontal: 8,
     paddingVertical: 4,
-    borderRadius: 999,
+    borderRadius: 6,
   },
-  badgeActiveText: { fontSize: 9, fontWeight: '800', color: C.onSecondaryContainer },
-  pathTitle: { fontSize: 18, fontWeight: '800', color: C.onSurface, marginTop: 8 },
-  pathTitleOnPrimary: { color: C.onPrimary },
-  pathSub: { fontSize: 13, color: C.tertiary, marginTop: 4 },
-  pathSubOnPrimary: { color: C.onPrimaryContainer, opacity: 0.9 },
-  emptyHint: { color: C.onSurfaceVariant, fontSize: 14, marginBottom: 12 },
+  badgeActiveText: { color: '#fff', fontSize: 8, fontWeight: 'bold' },
+  pathTitle: { color: '#fff', fontSize: 16, fontWeight: 'bold', marginTop: 12 },
+  pathSub: { color: 'rgba(255,255,255,0.7)', fontSize: 10, marginTop: 4 },
   sessionRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
-    backgroundColor: C.surfaceContainerLow,
+    backgroundColor: '#fff',
     borderRadius: 24,
-    padding: 14,
-    marginBottom: 10,
-  },
-  sessionDate: {
-    width: 56,
-    height: 56,
-    borderRadius: 16,
-    backgroundColor: C.surfaceContainerLowest,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  sessionMes: { fontSize: 10, fontWeight: '800', color: C.primary },
-  sessionDia: { fontSize: 18, fontWeight: '800', color: C.onSurface },
-  sessionTitle: { fontSize: 16, fontWeight: '800', color: C.onSurface },
-  sessionMeta: { marginTop: 4, fontSize: 12, color: C.tertiary },
-  tutorChip: {
-    fontSize: 10,
-    fontWeight: '800',
-    backgroundColor: C.primaryContainer,
-    color: C.onPrimary,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 999,
-    overflow: 'hidden',
-  },
-  smallBtn: {
-    backgroundColor: C.primary,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 999,
-  },
-  smallBtnText: { color: C.onPrimary, fontSize: 10, fontWeight: '800' },
-  tutorCard: {
-    backgroundColor: C.surfaceContainerLowest,
-    borderRadius: 24,
-    padding: 16,
-    marginBottom: 12,
+    padding: 16, 
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#F0F0F0',
     shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
-    shadowOffset: { width: 0, height: 8 },
-    shadowRadius: 20,
+    shadowRadius: 10, 
     elevation: 2,
   },
-  tutorCardInner: { flexDirection: 'row', gap: 12 },
-  tutorAvatar: {
-    width: 56,
-    height: 56,
+  sessionDate: {
+    width: 50, 
+    height: 60,
+    backgroundColor: '#F0F0F0',
     borderRadius: 16,
-    backgroundColor: C.surfaceContainerHigh,
-    alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    marginRight: 16,
   },
-  tutorName: { fontSize: 16, fontWeight: '800', color: C.onSurface },
-  tutorSpec: { fontSize: 13, color: C.primary, fontWeight: '600', marginTop: 2 },
-  starRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 6 },
-  starText: { fontSize: 13, fontWeight: '700', color: C.secondary },
-  tutorCta: {
-    marginTop: 12,
-    alignSelf: 'flex-end',
-    backgroundColor: C.primary,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 999,
+  sessionMes: { fontSize: 10, fontWeight: 'bold', color: '#999' },
+  sessionDia: { fontSize: 18, fontWeight: 'bold', color: '#333' },
+  sessionTitle: { fontSize: 16, fontWeight: 'bold', color: '#333', marginBottom: 4 },
+  sessionMeta: { fontSize: 12, color: '#999' },
+  tutorAvatarSmall: { width: 32, height: 32, borderRadius: 16, backgroundColor: '#34A853', justifyContent: 'center', alignItems: 'center' },
+  tutorBadge: { width: 10, height: 10, borderRadius: 5, backgroundColor: '#FFD700', position: 'absolute', bottom: 0, right: 0, borderWidth: 2, borderColor: '#fff' },
+  smallBtn: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8 },
+  smallBtnText: { color: '#fff', fontSize: 10, fontWeight: 'bold' },
+  helpCenter: {
+    flexDirection: 'row', 
+    backgroundColor: '#006D32',
+    borderRadius: 24,
+    padding: 24,
+    marginTop: 16,
+    marginBottom: 32,
+    overflow: 'hidden',
   },
-  tutorCtaText: { color: C.onPrimary, fontWeight: '800', fontSize: 12 },
-  fab: {
-    position: 'absolute',
-    right: 18,
-    bottom: 18,
-    width: 56,
-    height: 56,
-    borderRadius: 16,
-    backgroundColor: C.secondaryContainer,
+  helpTextContainer: { flex: 1, zIndex: 1 },
+  helpTitle: { color: '#fff', fontSize: 18, fontWeight: 'bold', marginBottom: 8 },
+  helpDesc: { color: 'rgba(255,255,255,0.7)', fontSize: 12, lineHeight: 18, marginBottom: 16 },
+  helpBtn: { backgroundColor: '#fff', paddingHorizontal: 16, paddingVertical: 10, borderRadius: 12, alignSelf: 'flex-start' },
+  helpBtnText: { color: '#006D32', fontSize: 12, fontWeight: 'bold' },
+  helpIconBox: { position: 'absolute', right: -10, bottom: -10 },
+  tutorCard: { marginBottom: 16 },
+  tutorCardInner: {
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 24,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#F0F0F0',
+  },
+  tutorAvatar: { width: 56, height: 56, borderRadius: 20, backgroundColor: '#E8F5E9', justifyContent: 'center', alignItems: 'center', marginRight: 16 },
+  tutorName: { fontSize: 16, fontWeight: 'bold', color: '#333', marginBottom: 4 },
+  tagRow: { flexDirection: 'row', gap: 6, marginBottom: 6 },
+  tag: { backgroundColor: '#F0F0F0', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6 },
+  tagText: { fontSize: 8, fontWeight: 'bold', color: '#666' },
+  starRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  starText: { fontSize: 12, color: '#999', fontWeight: '600' },
+  viewProfileBtn: { backgroundColor: '#F0F0F0', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 12 },
+  viewProfileBtnText: { fontSize: 10, fontWeight: 'bold', color: '#333' },
+  fabYellow: {
+    position: 'absolute', 
+    bottom: 110,
+    right: 20,
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: '#FFD700',
+    justifyContent: 'center', 
+    alignItems: 'center',
+    elevation: 8,
     shadowColor: '#000',
-    shadowOpacity: 0.15,
+    shadowOpacity: 0.2, 
+    shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 },
-    shadowRadius: 8,
-    elevation: 6,
   },
+  emptyHint: { fontSize: 14, color: '#999', fontStyle: 'italic', marginVertical: 12 },
 });

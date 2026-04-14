@@ -22,146 +22,140 @@ export default function ProfileScreen({ navigation }) {
 
   return (
     <View style={styles.root}>
-      <AppHeader
-        variant="stack"
-        left={
-          <TouchableOpacity style={styles.iconBtn} onPress={() => navigation.navigate('Home')}>
-            <MaterialCommunityIcons name="arrow-left" size={22} color={C.onSurface} />
-          </TouchableOpacity>
-        }
-        right={
-          <TouchableOpacity hitSlop={12}>
-            <Image source={{ uri: AVATAR }} style={styles.miniAvatar} />
-          </TouchableOpacity>
-        }
-      />
+      <View style={styles.header}>
+        <View style={{ width: 40 }} />
+        <Text style={styles.headerTitle}>My Profile</Text>
+        <TouchableOpacity onPress={signOut} style={styles.signOutBtn}>
+          <MaterialCommunityIcons name="logout" size={24} color="#FF5252" />
+        </TouchableOpacity>
+      </View>
+
       <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
-      <View style={styles.hero}>
-        <Image source={{ uri: AVATAR }} style={styles.coverImg} />
-        <View style={styles.ratingBadge}>
-          <Text style={styles.ratingNum}>UDEC</Text>
-          <MaterialCommunityIcons name="school" size={14} color={C.onSecondaryContainer} />
-        </View>
-      </View>
+        <View style={styles.hero}>
+          <View style={styles.profileBox}>
+            <View style={styles.profileImgPlaceholder}>
+               <MaterialCommunityIcons name="account" size={120} color="#DDD" />
+            </View>
+          </View>
+          
+          <View style={styles.infoCenter}>
+            <Text style={styles.roleKicker}>{appRole?.toUpperCase() || 'USER'}</Text>
+            <Text style={styles.nameLarge}>{name}</Text>
+            <Text style={styles.emailText}>{user?.email || 'No email'}</Text>
+          </View>
 
-      <Text style={styles.role}>{appRole === 'tutor' ? 'Tutor' : 'Estudiante'}</Text>
-      <Text style={styles.name}>{name}</Text>
-      <Text style={styles.email}>{user?.email || ''}</Text>
+          <View style={styles.menuSection}>
+            <TouchableOpacity style={styles.menuItem}>
+              <View style={styles.menuIconBox}>
+                <MaterialCommunityIcons name="account-edit-outline" size={22} color="#34A853" />
+              </View>
+              <Text style={styles.menuText}>Edit Profile</Text>
+              <MaterialCommunityIcons name="chevron-right" size={24} color="#DDD" />
+            </TouchableOpacity>
 
-      <View style={styles.statsRow}>
-        <View style={styles.stat}>
-          <Text style={styles.statNum}>—</Text>
-          <Text style={styles.statLbl}>Sesiones</Text>
-        </View>
-        <View style={styles.stat}>
-          <Text style={styles.statNum}>—</Text>
-          <Text style={styles.statLbl}>Horas</Text>
-        </View>
-        <View style={styles.stat}>
-          <Text style={styles.statNum}>—</Text>
-          <Text style={styles.statLbl}>Logros</Text>
-        </View>
-      </View>
+            <TouchableOpacity style={styles.menuItem}>
+              <View style={[styles.menuIconBox, { backgroundColor: '#E3F2FD' }]}>
+                <MaterialCommunityIcons name="shield-lock-outline" size={22} color="#2196F3" />
+              </View>
+              <Text style={styles.menuText}>Security & Password</Text>
+              <MaterialCommunityIcons name="chevron-right" size={24} color="#DDD" />
+            </TouchableOpacity>
 
-      <TouchableOpacity style={styles.rowBtn} onPress={() => navigation.navigate('Tutorias')}>
-        <MaterialCommunityIcons name="calendar-check" size={22} color={C.primary} />
-        <Text style={styles.rowBtnText}>Mis tutorías</Text>
-        <MaterialCommunityIcons name="chevron-right" size={22} color={C.outline} />
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.rowBtn} onPress={() => navigation.navigate('Materias')}>
-        <MaterialCommunityIcons name="book-multiple" size={22} color={C.primary} />
-        <Text style={styles.rowBtnText}>Materias</Text>
-        <MaterialCommunityIcons name="chevron-right" size={22} color={C.outline} />
-      </TouchableOpacity>
+            <TouchableOpacity style={styles.menuItem}>
+              <View style={[styles.menuIconBox, { backgroundColor: '#FFF3E0' }]}>
+                <MaterialCommunityIcons name="bell-outline" size={22} color="#FF9800" />
+              </View>
+              <Text style={styles.menuText}>Notifications</Text>
+              <MaterialCommunityIcons name="chevron-right" size={24} color="#DDD" />
+            </TouchableOpacity>
 
-      <TouchableOpacity style={styles.logout} onPress={signOut} activeOpacity={0.9}>
-        <MaterialCommunityIcons name="logout" size={20} color={C.onPrimary} />
-        <Text style={styles.logoutText}>Cerrar sesión</Text>
-      </TouchableOpacity>
+            <TouchableOpacity style={styles.menuItem}>
+              <View style={[styles.menuIconBox, { backgroundColor: '#F3E5F5' }]}>
+                <MaterialCommunityIcons name="help-circle-outline" size={22} color="#9C27B0" />
+              </View>
+              <Text style={styles.menuText}>Help & Support</Text>
+              <MaterialCommunityIcons name="chevron-right" size={24} color="#DDD" />
+            </TouchableOpacity>
+          </View>
+
+          {appRole === 'tutor' && (
+            <TouchableOpacity 
+              style={styles.statsCard}
+              onPress={() => navigation.navigate('Home')}
+            >
+              <Text style={styles.statsCardTitle}>Tutor Statistics</Text>
+              <View style={styles.statsRow}>
+                <View style={styles.statItem}>
+                  <Text style={styles.statVal}>12</Text>
+                  <Text style={styles.statLbl}>This week</Text>
+                </View>
+                <View style={styles.statItem}>
+                  <Text style={styles.statVal}>4.8</Text>
+                  <Text style={styles.statLbl}>Rating</Text>
+                </View>
+                <View style={styles.statItem}>
+                  <Text style={styles.statVal}>$120k</Text>
+                  <Text style={styles.statLbl}>Earnings</Text>
+                </View>
+              </View>
+            </TouchableOpacity>
+          )}
+        </View>
       </ScrollView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: C.surface },
+  root: { flex: 1, backgroundColor: '#fff' },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingTop: 50,
+    paddingBottom: 10,
+  },
+  headerTitle: { fontSize: 18, fontWeight: 'bold', color: '#34A853' },
+  signOutBtn: { width: 40, height: 40, justifyContent: 'center', alignItems: 'center' },
   scroll: { flex: 1 },
   content: { paddingBottom: 100 },
-  iconBtn: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
-  miniAvatar: { width: 36, height: 36, borderRadius: 18 },
-  hero: { alignSelf: 'center', marginTop: 8 },
-  coverImg: {
-    width: 160,
-    height: 200,
-    borderRadius: 32,
-    backgroundColor: C.surfaceContainerHigh,
-  },
-  ratingBadge: {
-    position: 'absolute',
-    right: -10,
-    bottom: -10,
-    backgroundColor: C.secondaryContainer,
+  hero: { padding: 20 },
+  profileBox: { width: '100%', height: 200, borderRadius: 32, backgroundColor: '#F0F0F0', marginBottom: 24, overflow: 'hidden' },
+  profileImgPlaceholder: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  infoCenter: { alignItems: 'center', marginBottom: 32 },
+  roleKicker: { fontSize: 10, fontWeight: 'bold', color: '#34A853', letterSpacing: 1 },
+  nameLarge: { fontSize: 28, fontWeight: 'bold', color: '#333', marginTop: 8 },
+  emailText: { fontSize: 14, color: '#999', marginTop: 4 },
+  menuSection: { gap: 16 },
+  menuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
     padding: 12,
-    borderRadius: 16,
-    borderWidth: 4,
-    borderColor: C.surface,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  ratingNum: { fontWeight: '800', color: C.onSecondaryContainer, fontSize: 12 },
-  role: {
-    marginTop: 28,
-    marginHorizontal: 24,
-    fontSize: 11,
-    fontWeight: '800',
-    color: C.primary,
-    letterSpacing: 1,
-    textTransform: 'uppercase',
-  },
-  name: {
-    marginHorizontal: 24,
-    fontSize: 32,
-    fontWeight: '800',
-    color: C.onSurface,
-    letterSpacing: -0.5,
-  },
-  email: { marginHorizontal: 24, marginTop: 6, color: C.onSurfaceVariant, fontSize: 14 },
-  statsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginTop: 24,
-    marginHorizontal: 16,
-    paddingVertical: 16,
-    borderTopWidth: 1,
-    borderTopColor: C.outlineVariant + '55',
-  },
-  stat: { alignItems: 'center' },
-  statNum: { fontSize: 22, fontWeight: '800', color: C.onSurface },
-  statLbl: { fontSize: 11, color: C.onSurfaceVariant, marginTop: 4, textTransform: 'uppercase' },
-  rowBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginHorizontal: 20,
-    marginTop: 10,
-    padding: 16,
-    backgroundColor: C.surfaceContainerLowest,
-    borderRadius: 16,
-    gap: 12,
+    borderRadius: 20,
     borderWidth: 1,
-    borderColor: C.outlineVariant + '33',
+    borderColor: '#F0F0F0',
   },
-  rowBtnText: { flex: 1, fontSize: 15, fontWeight: '700', color: C.onSurface },
-  logout: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  menuIconBox: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    backgroundColor: '#E8F5E9',
     justifyContent: 'center',
-    gap: 8,
-    marginHorizontal: 20,
-    marginTop: 28,
-    backgroundColor: C.error,
-    padding: 16,
-    borderRadius: 16,
+    alignItems: 'center',
+    marginRight: 16,
   },
-  logoutText: { color: C.onPrimary, fontSize: 16, fontWeight: '800' },
+  menuText: { flex: 1, fontSize: 16, fontWeight: '600', color: '#333' },
+  statsCard: {
+    marginTop: 32,
+    backgroundColor: '#006D32',
+    borderRadius: 24,
+    padding: 24,
+  },
+  statsCardTitle: { color: '#fff', fontSize: 16, fontWeight: 'bold', marginBottom: 16 },
+  statsRow: { flexDirection: 'row', justifyContent: 'space-between' },
+  statItem: { alignItems: 'center' },
+  statVal: { color: '#fff', fontSize: 20, fontWeight: 'bold' },
+  statLbl: { color: 'rgba(255,255,255,0.6)', fontSize: 10, marginTop: 4, fontWeight: 'bold' },
 });

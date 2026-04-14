@@ -14,7 +14,6 @@ router.register(r'disponibilidades', DisponibilidadViewSet)
 router.register(r'resenas', ResenaViewSet)
 router.register(r'usuarios', UserAdminViewSet, basename='usuarios')
 router.register(r'auth', AuthViewSet, basename='auth')
-router.register(r'auth', AuthViewSet, basename='auth')
 
 urlpatterns = [
     path('', include(router.urls)),

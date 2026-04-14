@@ -69,6 +69,7 @@ export const tutorService = {
   // API de tutores: CRUD + endpoints derivados.
   getAll: (params) => api.get('/tutores/', { params }),
   getById: (id) => api.get(`/tutores/${id}/`),
+  miPerfil: () => api.get('/tutores/mi_perfil/'),
   create: (data) => api.post('/tutores/', data),
   update: (id, data) => api.put(`/tutores/${id}/`, data),
   delete: (id) => api.delete(`/tutores/${id}/`),
@@ -101,4 +102,6 @@ export const tutoriaService = {
   cancelar: (id) => api.post(`/tutorias/${id}/cancelar/`),
   getMisTutorias: (params) =>
     api.get('/tutorias/mis_tutorias/', { params }),
+  getMisTutoriasComoTutor: (params) =>
+    api.get('/tutorias/mis_tutorias_como_tutor/', { params }),
 };

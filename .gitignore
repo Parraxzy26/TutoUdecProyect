@@ -3,23 +3,42 @@ __pycache__/
 *.py[cod]
 *$py.class
 .env
+.env.*
 db.sqlite3
 media/
 staticfiles/
+venv/
+*.log
 
-# Node / Frontend / Mobile
+# Node / Frontend Web
 node_modules/
-.expo/
 dist/
 build/
 .next/
 out/
+*.log
+npm-debug.log*
+.DS_Store
+
+# Mobile React Native / Expo
+.expo/
+.expo-shared/
+dist/
+npm-debug.log
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
 
 # IDE / OS
 .vscode/
 .idea/
+*.swp
+*.swo
 .DS_Store
-*.log
+Thumbs.db
 
 # Git
 .git/index.lock

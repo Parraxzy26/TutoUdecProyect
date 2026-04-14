@@ -13,11 +13,12 @@ const AppHeader = ({ variant = 'default', title, avatarUri, onPressAvatar, onPre
               <Image source={{ uri: avatarUri }} style={styles.avatar} />
             </View>
           </TouchableOpacity>
-          <Image 
-            source={require('../assets/tutoudec-logo-horizontal.png')} 
-            style={styles.logo} 
-            resizeMode="contain" 
-          />
+          <View style={styles.logoContainer}>
+            <View style={styles.logoRow}>
+              <MaterialCommunityIcons name="school" size={20} color={C.primary} />
+              <Text style={styles.logoText}>TutoUdec</Text>
+            </View>
+          </View>
           <TouchableOpacity onPress={onPressBell}>
             <MaterialCommunityIcons name="bell-outline" size={24} color={C.onSurface} />
           </TouchableOpacity>
@@ -54,9 +55,24 @@ const styles = StyleSheet.create({
     height: '100%',
     borderRadius: 20,
   },
-  logo: {
-    width: 120,
-    height: 30,
+  logoContainer: {
+    alignItems: 'center',
+  },
+  logoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  logoText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: C.primary,
+    marginLeft: 4,
+  },
+  logoSubtitle: {
+    fontSize: 8,
+    color: '#666',
+    marginTop: -2,
+    fontWeight: '500',
   },
   title: {
     fontSize: 20,

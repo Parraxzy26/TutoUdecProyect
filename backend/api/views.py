@@ -54,6 +54,14 @@ class AuthViewSet(viewsets.ViewSet):
                 first_name=request.data.get('first_name', ''),
                 last_name=request.data.get('last_name', '')
             )
+            
+            # Crear perfil de tutor si se solicita
+            if request.data.get('role') == 'tutor':
+                Tutor.objects.create(
+                    usuario=user,
+                    especialidad=request.data.get('especialidad', 'General')
+                )
+                
             refresh = RefreshToken.for_user(user)
             return Response({
                 'access': str(refresh.access_token),
@@ -65,6 +73,20 @@ class AuthViewSet(viewsets.ViewSet):
     @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])
     def profile(self, request):
         return Response(UserSerializer(request.user).data)
+
+    @action(detail=False, methods=['post'])
+    def refresh(self, request):
+        refresh_token = request.data.get('refresh')
+        if not refresh_token:
+            return Response({'detail': 'Se requiere refresh token'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            refresh = RefreshToken(refresh_token)
+            return Response({
+                'access': str(refresh.access_token),
+                'refresh': str(refresh),
+            })
+        except Exception:
+            return Response({'detail': 'Token inválido'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 class MateriaViewSet(viewsets.ModelViewSet):

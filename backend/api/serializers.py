@@ -1,13 +1,20 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Tutor, Materia, Tutoria
+from .models import Tutor, Materia, Tutoria, Disponibilidad, Resena
 
 
 class UserSerializer(serializers.ModelSerializer):
+    role = serializers.SerializerMethodField()
+
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'first_name', 'last_name']
+        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'role']
         read_only_fields = ['id']
+
+    def get_role(self, obj):
+        if hasattr(obj, 'perfil_tutor'):
+            return 'tutor'
+        return 'estudiante'
 
 
 class MateriaSerializer(serializers.ModelSerializer):
@@ -83,3 +90,29 @@ class TutorListSerializer(serializers.ModelSerializer):
     
     def get_total_tutorias(self, obj):
         return obj.tutorias.filter(estado='completada').count()
+
+
+class DisponibilidadSerializer(serializers.ModelSerializer):
+    tutor_nombre = serializers.CharField(source='tutor.usuario.username', read_only=True)
+    dia_semana_display = serializers.CharField(source='get_dia_semana_display', read_only=True)
+
+    class Meta:
+        model = Disponibilidad
+        fields = [
+            'id', 'tutor', 'tutor_nombre', 'dia_semana', 'dia_semana_display',
+            'hora_inicio', 'hora_fin', 'activo'
+        ]
+        read_only_fields = ['id']
+
+
+class ResenaSerializer(serializers.ModelSerializer):
+    tutor_nombre = serializers.CharField(source='tutor.usuario.username', read_only=True)
+    estudiante_nombre = serializers.CharField(source='estudiante.username', read_only=True)
+
+    class Meta:
+        model = Resena
+        fields = [
+            'id', 'tutor', 'tutor_nombre', 'estudiante', 'estudiante_nombre',
+            'tutoria', 'calificacion', 'comentario', 'creado_en'
+        ]
+        read_only_fields = ['id', 'creado_en']

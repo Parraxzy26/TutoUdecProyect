@@ -76,38 +76,37 @@ export default function TutoresScreen({ navigation, route }) {
 
   const renderItem = ({ item }) => (
     <View style={styles.card}>
-      <View style={styles.cardRow}>
-        <View style={styles.rel}>
-          <View style={styles.photoPlaceholder}>
-            <MaterialCommunityIcons name="account" size={40} color={C.primary} />
+      <View style={styles.cardTop}>
+        <View style={styles.avatarBox}>
+          <View style={styles.photoPlaceholderLarge}>
+            <MaterialCommunityIcons name="account" size={60} color="#DDD" />
           </View>
-          <View
-            style={[
-              styles.dot,
-              { backgroundColor: item.disponible ? '#22C55E' : C.outline },
-            ]}
-          />
+          <View style={[styles.statusDot, { backgroundColor: item.disponible ? '#22C55E' : '#999' }]} />
         </View>
-        <View style={{ flex: 1 }}>
-          <View style={styles.titleRow}>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.name}>{item.usuario_nombre || 'Tutor'}</Text>
-              <Text style={styles.spec}>{item.especialidad}</Text>
-            </View>
-            <View style={styles.ratingPill}>
-              <MaterialCommunityIcons name="star" size={16} color={C.secondary} />
-              <Text style={styles.ratingText}>
-                {Number(item.calificacion ?? 0).toFixed(1)}
-              </Text>
+        <View style={styles.infoBox}>
+          <View style={styles.nameRow}>
+            <Text style={styles.tutorNameLarge}>{item.usuario_nombre || 'Elena Rodriguez'}</Text>
+            <View style={styles.ratingBoxSmall}>
+              <MaterialCommunityIcons name="star" size={12} color="#FBC02D" />
+              <Text style={styles.ratingTextSmall}>{Number(item.calificacion ?? 4.9).toFixed(1)}</Text>
             </View>
           </View>
-          <Text style={styles.bio} numberOfLines={2}>
-            ${item.tarifa_por_hora}/h · {item.disponible ? 'Disponible' : 'No disponible'}
+          <Text style={styles.specialtyText}>{item.especialidad || 'Mathematics Specialist'}</Text>
+          <Text style={styles.bioText} numberOfLines={3}>
+            {item.bio || 'Expert in differential calculus and linear algebra with over 3 years of experience...'}
           </Text>
+          <View style={styles.tagRowLarge}>
+            <View style={styles.tagPill}><Text style={styles.tagPillText}>Engineering</Text></View>
+            <View style={[styles.tagPill, { backgroundColor: '#F0F0F0' }]}><Text style={[styles.tagPillText, { color: '#666' }]}>Spanish</Text></View>
+          </View>
         </View>
       </View>
-      <TouchableOpacity style={styles.cta} activeOpacity={0.9}>
-        <Text style={styles.ctaText}>Ver perfil</Text>
+      <TouchableOpacity 
+        style={styles.viewProfileBtnLarge} 
+        activeOpacity={0.9}
+        onPress={() => navigation.navigate('TutorDetail', { tutorId: item.id })}
+      >
+        <Text style={styles.viewProfileBtnTextLarge}>View Profile</Text>
       </TouchableOpacity>
     </View>
   );
@@ -121,14 +120,14 @@ export default function TutoresScreen({ navigation, route }) {
         onPressBell={() => {}}
       />
 
-      <Text style={styles.h2}>Busca tu tutor</Text>
+      <Text style={styles.h2}>Find your Tutor</Text>
 
       <View style={styles.searchWrap}>
-        <MaterialCommunityIcons name="magnify" size={22} color={C.outline} style={{ marginLeft: 12 }} />
+        <MaterialCommunityIcons name="magnify" size={22} color="#999" style={{ marginLeft: 16 }} />
         <TextInput
           style={styles.searchInput}
-          placeholder="Materia, nombre…"
-          placeholderTextColor={C.outline}
+          placeholder="Subject, name..."
+          placeholderTextColor="#999"
           value={query}
           onChangeText={setQuery}
           returnKeyType="search"
@@ -137,26 +136,26 @@ export default function TutoresScreen({ navigation, route }) {
 
       <View style={styles.chips}>
         <View style={styles.chipPrimary}>
-          <Text style={styles.chipPrimaryText}>{query.trim() || 'Todos'}</Text>
+          <Text style={styles.chipPrimaryText}>{query.trim() || 'All'}</Text>
           {query.trim() ? (
             <TouchableOpacity onPress={() => setQuery('')}>
-              <MaterialCommunityIcons name="close" size={18} color={C.onPrimary} />
+              <MaterialCommunityIcons name="close" size={18} color="#fff" />
             </TouchableOpacity>
           ) : null}
         </View>
         <TouchableOpacity style={styles.chipGhost} onPress={() => navigation.navigate('Materias')}>
-          <MaterialCommunityIcons name="filter-variant" size={18} color={C.onSurfaceVariant} />
-          <Text style={styles.chipGhostText}>Materias</Text>
+          <MaterialCommunityIcons name="filter-variant" size={18} color="#666" />
+          <Text style={styles.chipGhostText}>Filters</Text>
         </TouchableOpacity>
       </View>
 
       <View style={styles.countRow}>
-        <Text style={styles.count}>{tutores.length} resultados</Text>
-        <Text style={styles.sort}>API Django</Text>
+        <Text style={styles.count}>{tutores.length} TUTORS AVAILABLE</Text>
+        <Text style={styles.sort}>Sort by: Relevance</Text>
       </View>
 
       {loading && tutores.length === 0 ? (
-        <ActivityIndicator style={{ marginTop: 24 }} color={C.primary} />
+        <ActivityIndicator style={{ marginTop: 24 }} color="#34A853" />
       ) : (
         <FlatList
           data={tutores}
@@ -165,7 +164,7 @@ export default function TutoresScreen({ navigation, route }) {
           contentContainerStyle={{ paddingBottom: 100 }}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
           ListEmptyComponent={
-            <Text style={styles.empty}>No hay tutores. Prueba otra búsqueda o revisa la API.</Text>
+            <Text style={styles.empty}>No tutors found. Try another search.</Text>
           }
         />
       )}
@@ -174,93 +173,104 @@ export default function TutoresScreen({ navigation, route }) {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: C.surface, paddingHorizontal: 20 },
-  h2: { fontSize: 22, fontWeight: '800', color: C.onSurface, marginBottom: 12, marginTop: 4 },
+  root: { flex: 1, backgroundColor: '#fff', paddingHorizontal: 20 },
+  h2: { fontSize: 24, fontWeight: 'bold', color: '#333', marginBottom: 16, marginTop: 8 },
   searchWrap: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: C.surfaceContainerHighest,
-    borderRadius: 18,
-    marginBottom: 12,
+    backgroundColor: '#F0F0F0',
+    borderRadius: 20,
+    height: 56,
+    marginBottom: 16,
   },
-  searchInput: { flex: 1, paddingVertical: 14, fontSize: 16, color: C.onSurface },
-  chips: { flexDirection: 'row', gap: 8, marginBottom: 14, flexWrap: 'wrap' },
+  searchInput: { flex: 1, paddingHorizontal: 12, fontSize: 16, color: '#333' },
+  chips: { flexDirection: 'row', gap: 8, marginBottom: 24, flexWrap: 'wrap' },
   chipPrimary: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: C.primary,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 14,
+    backgroundColor: '#006D32',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 12,
   },
-  chipPrimaryText: { color: C.onPrimary, fontWeight: '600', fontSize: 14 },
+  chipPrimaryText: { color: '#fff', fontWeight: 'bold', fontSize: 14 },
   chipGhost: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: C.surfaceContainerHigh,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 14,
+    backgroundColor: '#F0F0F0',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 12,
   },
-  chipGhostText: { color: C.onSurfaceVariant, fontWeight: '600' },
+  chipGhostText: { color: '#666', fontWeight: '600', fontSize: 14 },
   countRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 12,
-  },
-  count: { fontSize: 11, fontWeight: '800', letterSpacing: 1, color: C.outline, textTransform: 'uppercase' },
-  sort: { fontSize: 13, fontWeight: '600', color: C.primary },
-  card: {
-    backgroundColor: C.surfaceContainerLowest,
-    borderRadius: 24,
-    padding: 16,
-    marginBottom: 14,
-    borderWidth: 1,
-    borderColor: C.outlineVariant + '33',
-  },
-  cardRow: { flexDirection: 'row', gap: 14 },
-  rel: { position: 'relative' },
-  photoPlaceholder: {
-    width: 96,
-    height: 96,
-    borderRadius: 18,
-    backgroundColor: C.surfaceContainerHigh,
     alignItems: 'center',
-    justifyContent: 'center',
+    marginBottom: 16,
   },
-  dot: {
-    position: 'absolute',
-    right: -4,
-    bottom: -4,
+  count: { fontSize: 12, fontWeight: 'bold', color: '#999' },
+  sort: { fontSize: 12, color: '#34A853', fontWeight: '600' },
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 24,
+    padding: 20,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: '#F0F0F0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 2,
+  },
+  cardTop: { flexDirection: 'row', gap: 20 },
+  avatarBox: { width: 80, alignItems: 'center' },
+  photoPlaceholderLarge: {
+    width: 80,
+    height: 100,
+    borderRadius: 16,
+    backgroundColor: '#F0F0F0',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  statusDot: {
     width: 14,
     height: 14,
     borderRadius: 7,
-    borderWidth: 3,
-    borderColor: C.surfaceContainerLowest,
+    borderWidth: 2,
+    borderColor: '#fff',
+    position: 'absolute',
+    bottom: -4,
+    right: 4,
   },
-  titleRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 8 },
-  name: { fontSize: 18, fontWeight: '800', color: C.onSurface },
-  spec: { marginTop: 2, fontSize: 14, fontWeight: '600', color: C.primary },
-  ratingPill: {
+  infoBox: { flex: 1 },
+  nameRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 },
+  tutorNameLarge: { fontSize: 18, fontWeight: 'bold', color: '#333' },
+  ratingBoxSmall: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: C.secondaryContainer + '33',
+    backgroundColor: '#FFF9C4',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 10,
   },
-  ratingText: { fontWeight: '800', color: C.secondary, fontSize: 13 },
-  bio: { marginTop: 8, fontSize: 13, color: C.onSurfaceVariant, lineHeight: 18 },
-  cta: {
-    marginTop: 14,
-    backgroundColor: C.primary,
-    borderRadius: 999,
-    paddingVertical: 12,
+  ratingTextSmall: { fontSize: 12, fontWeight: 'bold', color: '#FBC02D' },
+  specialtyText: { fontSize: 14, color: '#34A853', fontWeight: '600', marginBottom: 8 },
+  bioText: { fontSize: 12, color: '#999', lineHeight: 18, marginBottom: 12 },
+  tagRowLarge: { flexDirection: 'row', gap: 8 },
+  tagPill: { backgroundColor: '#E8F5E9', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8 },
+  tagPillText: { fontSize: 10, fontWeight: 'bold', color: '#34A853' },
+  viewProfileBtnLarge: {
+    marginTop: 20,
+    backgroundColor: '#006D32',
+    paddingVertical: 14,
+    borderRadius: 30,
     alignItems: 'center',
   },
-  ctaText: { color: C.onPrimary, fontWeight: '800', fontSize: 14 },
-  empty: { textAlign: 'center', color: C.onSurfaceVariant, marginTop: 32 },
+  viewProfileBtnTextLarge: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
+  empty: { textAlign: 'center', marginTop: 40, color: '#999', fontSize: 14 },
 });
