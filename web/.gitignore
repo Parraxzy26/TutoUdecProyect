@@ -1,0 +1,13 @@
+# Bloqueo total de librerías
+node_modules/
+**/node_modules/
+Frontend/node_modules/
+mobile/node_modules/
+
+# Otros archivos pesados
+.expo/
+dist/
+venv/
+.venv/
+__pycache__/
+*.log
