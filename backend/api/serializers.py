@@ -12,6 +12,48 @@ class UserSerializer(serializers.ModelSerializer):
         read_only_fields = ['id']
 
     def get_role(self, obj):
+        if obj.is_staff or obj.is_superuser:
+            return 'admin'
+        if hasattr(obj, 'perfil_tutor'):
+            return 'tutor'
+        return 'estudiante'
+
+
+class AdminUserSerializer(serializers.ModelSerializer):
+    """
+    Serializer para gestión de usuarios por administradores (API).
+    Permite editar flags y asignar permisos/grupos.
+    """
+
+    role = serializers.SerializerMethodField(read_only=True)
+    groups = serializers.PrimaryKeyRelatedField(many=True, read_only=False, queryset=User.groups.rel.model.objects.all())
+    user_permissions = serializers.PrimaryKeyRelatedField(
+        many=True,
+        read_only=False,
+        queryset=User.user_permissions.rel.model.objects.all(),
+        required=False,
+    )
+
+    class Meta:
+        model = User
+        fields = [
+            'id',
+            'username',
+            'email',
+            'first_name',
+            'last_name',
+            'is_active',
+            'is_staff',
+            'is_superuser',
+            'groups',
+            'user_permissions',
+            'role',
+        ]
+        read_only_fields = ['id', 'role']
+
+    def get_role(self, obj):
+        if obj.is_staff or obj.is_superuser:
+            return 'admin'
         if hasattr(obj, 'perfil_tutor'):
             return 'tutor'
         return 'estudiante'
@@ -24,6 +66,21 @@ class MateriaSerializer(serializers.ModelSerializer):
         model = Materia
         fields = ['id', 'nombre', 'descripcion', 'creado_en', 'total_tutorias']
         read_only_fields = ['id', 'creado_en']
+
+    def to_internal_value(self, data):
+        """
+        Compatibilidad con clientes que envían claves distintas
+        (por ejemplo `name` en lugar de `nombre`).
+        """
+        mutable_data = dict(data)
+        if not mutable_data.get('nombre'):
+            if mutable_data.get('name'):
+                mutable_data['nombre'] = mutable_data.get('name')
+            elif mutable_data.get('titulo'):
+                mutable_data['nombre'] = mutable_data.get('titulo')
+            elif mutable_data.get('materia'):
+                mutable_data['nombre'] = mutable_data.get('materia')
+        return super().to_internal_value(mutable_data)
     
     def get_total_tutorias(self, obj):
         return obj.tutorias.count()
