@@ -1,5 +1,52 @@
 from django.contrib import admin
-from .models import Tutor, Materia, Tutoria
+from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
+from django.contrib.auth.models import Group, Permission, User
+from django.contrib.contenttypes.models import ContentType
+
+from .models import Disponibilidad, Materia, Resena, Tutor, Tutoria
+
+
+def _ensure_tutores_group() -> Group:
+    """
+    Grupo "Tutores" con permisos de modelo típicos.
+    Nota: Django no trae permisos por-objeto por defecto; esto es a nivel modelo.
+    """
+    group, _ = Group.objects.get_or_create(name="Tutores")
+
+    models_to_grant = [Tutor, Materia, Disponibilidad, Tutoria, Resena]
+    perms: list[Permission] = []
+    for model in models_to_grant:
+        ct = ContentType.objects.get_for_model(model)
+        perms.extend(Permission.objects.filter(content_type=ct))
+
+    if perms:
+        group.permissions.set(perms)
+
+    return group
+
+
+class TutorInline(admin.StackedInline):
+    model = Tutor
+    extra = 0
+    fk_name = "usuario"
+    filter_horizontal = ("materias",)
+
+
+@admin.action(description="Marcar usuarios como tutores (crear perfil + grupo Tutores)")
+def make_users_tutors(modeladmin, request, queryset):
+    group = _ensure_tutores_group()
+    for user in queryset:
+        Tutor.objects.get_or_create(
+            usuario=user,
+            defaults={"especialidad": "Sin especificar"},
+        )
+        user.groups.add(group)
+
+
+@admin.action(description="Quitar rol de tutor (eliminar perfil Tutor)")
+def remove_users_tutors(modeladmin, request, queryset):
+    for user in queryset:
+        Tutor.objects.filter(usuario=user).delete()
 
 
 @admin.register(Materia)
@@ -59,3 +106,37 @@ class TutoriaAdmin(admin.ModelAdmin):
         if obj:  # Editing existing object
             return self.readonly_fields + ('tutor', 'estudiante')
         return self.readonly_fields
+
+
+@admin.register(Disponibilidad)
+class DisponibilidadAdmin(admin.ModelAdmin):
+    list_display = ("tutor", "dia_semana", "hora_inicio", "hora_fin", "activo")
+    list_filter = ("activo", "dia_semana")
+    search_fields = ("tutor__usuario__username", "tutor__usuario__first_name", "tutor__usuario__last_name")
+
+
+@admin.register(Resena)
+class ResenaAdmin(admin.ModelAdmin):
+    list_display = ("tutor", "estudiante", "calificacion", "creado_en")
+    list_filter = ("calificacion", "creado_en")
+    search_fields = ("tutor__usuario__username", "estudiante__username", "comentario")
+    readonly_fields = ("creado_en",)
+
+
+admin.site.unregister(User)
+
+
+@admin.register(User)
+class UserAdmin(DjangoUserAdmin):
+    actions = [make_users_tutors, remove_users_tutors]
+    inlines = [TutorInline]
+    list_display = (
+        "username",
+        "email",
+        "first_name",
+        "last_name",
+        "is_staff",
+        "is_superuser",
+        "is_active",
+    )
+    list_filter = ("is_staff", "is_superuser", "is_active", "groups")
