@@ -1,6 +1,6 @@
 # Mobile - TutoUdec
 
-Aplicación móvil del sistema de tutorías construida con React Native y Expo.
+Aplicación móvil del sistema de tutorías construida con React Native y Expo..
 
 ## Requisitos
 
