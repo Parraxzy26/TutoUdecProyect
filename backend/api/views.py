@@ -11,8 +11,9 @@ from .models import Tutor, Materia, Tutoria, Disponibilidad, Resena
 from .serializers import (
     TutorSerializer, TutorListSerializer, MateriaSerializer,
     TutoriaSerializer, UserSerializer, DisponibilidadSerializer,
-    ResenaSerializer
+    ResenaSerializer, AdminUserSerializer
 )
+from .permissions import IsAdminOrReadOnly
 
 class AuthViewSet(viewsets.ViewSet):
     permission_classes = [AllowAny]
@@ -92,7 +93,7 @@ class AuthViewSet(viewsets.ViewSet):
 class MateriaViewSet(viewsets.ModelViewSet):
     queryset = Materia.objects.all()
     serializer_class = MateriaSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAdminOrReadOnly]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['nombre', 'descripcion']
     ordering_fields = ['nombre', 'creado_en']
@@ -117,7 +118,7 @@ class MateriaViewSet(viewsets.ModelViewSet):
 
 class TutorViewSet(viewsets.ModelViewSet):
     queryset = Tutor.objects.select_related('usuario').prefetch_related('materias')
-    permission_classes = [AllowAny]
+    permission_classes = [IsAdminOrReadOnly]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['nivel_experiencia', 'disponible', 'materias']
     search_fields = ['usuario__username', 'usuario__first_name', 'usuario__last_name', 'especialidad']
@@ -199,9 +200,38 @@ class TutoriaViewSet(viewsets.ModelViewSet):
     ordering_fields = ['fecha_inicio', 'creado_en', 'estado']
     ordering = ['-fecha_inicio']
     
+    def get_queryset(self):
+        qs = super().get_queryset()
+        user = self.request.user
+        if user.is_staff or user.is_superuser:
+            return qs
+        if hasattr(user, 'perfil_tutor'):
+            return qs.filter(tutor=user.perfil_tutor)
+        return qs.filter(estudiante=user)
+
+    def update(self, request, *args, **kwargs):
+        if not request.user.is_staff:
+            return Response({'detail': 'Solo un administrador puede editar tutorias.'}, status=status.HTTP_403_FORBIDDEN)
+        return super().update(request, *args, **kwargs)
+
+    def partial_update(self, request, *args, **kwargs):
+        if not request.user.is_staff:
+            return Response({'detail': 'Solo un administrador puede editar tutorias.'}, status=status.HTTP_403_FORBIDDEN)
+        return super().partial_update(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        if not request.user.is_staff:
+            return Response({'detail': 'Solo un administrador puede eliminar tutorias.'}, status=status.HTTP_403_FORBIDDEN)
+        return super().destroy(request, *args, **kwargs)
+
     def perform_create(self, serializer):
         """Al crear una tutoría, calcular la tarifa y asignar estudiante"""
-        tutoria = serializer.save(estudiante=self.request.user)
+        # El estudiante autenticado puede registrar su propia tutoría.
+        # Si quien crea es admin, puede asignar explícitamente otro estudiante.
+        if self.request.user.is_staff and serializer.validated_data.get('estudiante'):
+            tutoria = serializer.save()
+        else:
+            tutoria = serializer.save(estudiante=self.request.user)
         if not tutoria.tarifa and tutoria.tutor.tarifa_por_hora:
             duracion_horas = tutoria.duracion_minutos / 60
             tutoria.tarifa = tutoria.tutor.tarifa_por_hora * duracion_horas
@@ -294,7 +324,7 @@ class TutoriaViewSet(viewsets.ModelViewSet):
 class DisponibilidadViewSet(viewsets.ModelViewSet):
     queryset = Disponibilidad.objects.all()
     serializer_class = DisponibilidadSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAdminOrReadOnly]
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['tutor', 'dia_semana', 'activo']
 
@@ -302,7 +332,7 @@ class DisponibilidadViewSet(viewsets.ModelViewSet):
 class ResenaViewSet(viewsets.ModelViewSet):
     queryset = Resena.objects.all()
     serializer_class = ResenaSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAdminOrReadOnly]
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
     filterset_fields = ['tutor', 'estudiante', 'tutoria']
     ordering_fields = ['creado_en', 'calificacion']
@@ -314,7 +344,7 @@ class UserAdminViewSet(viewsets.ModelViewSet):
     ViewSet para la gestión de usuarios por parte de administradores.
     """
     queryset = User.objects.all().order_by('id')
-    serializer_class = UserSerializer
+    serializer_class = AdminUserSerializer
     permission_classes = [IsAdminUser]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['username', 'email', 'first_name', 'last_name']
