@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Tutor, Materia, Tutoria, Disponibilidad, Resena
+from .models import Tutor, Materia, Tutoria, Disponibilidad, Resena, GrupoTutoria, InscripcionGrupo
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -130,7 +130,7 @@ class TutoriaSerializer(serializers.ModelSerializer):
             'duracion_minutos', 'estado', 'descripcion', 'lugar', 'tarifa',
             'nota', 'creado_en', 'actualizado_en'
         ]
-        read_only_fields = ['id', 'duracion_minutos', 'creado_en', 'actualizado_en']
+        read_only_fields = ['id', 'creado_en', 'actualizado_en']
 
 
 class TutorListSerializer(serializers.ModelSerializer):
@@ -170,6 +170,44 @@ class ResenaSerializer(serializers.ModelSerializer):
         model = Resena
         fields = [
             'id', 'tutor', 'tutor_nombre', 'estudiante', 'estudiante_nombre',
-            'tutoria', 'calificacion', 'comentario', 'creado_en'
+            'tutoria', 'grupo', 'calificacion', 'comentario', 'creado_en'
         ]
         read_only_fields = ['id', 'creado_en']
+
+
+class GrupoTutoriaSerializer(serializers.ModelSerializer):
+    tutor_nombre = serializers.CharField(source='tutor.usuario.get_full_name', read_only=True)
+    materia_nombre = serializers.CharField(source='materia.nombre', read_only=True)
+    esta_lleno = serializers.BooleanField(read_only=True)
+    estudiantes_inscritos = serializers.SerializerMethodField()
+
+    class Meta:
+        model = GrupoTutoria
+        fields = [
+            'id', 'tutor', 'tutor_nombre', 'materia', 'materia_nombre',
+            'nombre', 'descripcion', 'cupos_maximos', 'cupos_disponibles',
+            'esta_lleno', 'fecha_inicio', 'fecha_fin', 'duracion_minutos',
+            'lugar', 'modalidad', 'estado', 'estudiantes_inscritos',
+            'creado_en', 'actualizado_en'
+        ]
+        read_only_fields = ['id', 'creado_en', 'actualizado_en', 'cupos_disponibles']
+
+    def get_estudiantes_inscritos(self, obj):
+        inscripciones = obj.inscripciones.filter(estado='inscrito').select_related('estudiante')
+        return UserSerializer([i.estudiante for i in inscripciones], many=True).data
+
+
+class InscripcionGrupoSerializer(serializers.ModelSerializer):
+    estudiante_nombre = serializers.CharField(source='estudiante.get_full_name', read_only=True)
+    estudiante_username = serializers.CharField(source='estudiante.username', read_only=True)
+    grupo_nombre = serializers.CharField(source='grupo.nombre', read_only=True)
+    materia_nombre = serializers.CharField(source='grupo.materia.nombre', read_only=True)
+
+    class Meta:
+        model = InscripcionGrupo
+        fields = [
+            'id', 'grupo', 'grupo_nombre', 'materia_nombre',
+            'estudiante', 'estudiante_nombre', 'estudiante_username',
+            'fecha_inscripcion', 'estado', 'asistio'
+        ]
+        read_only_fields = ['id', 'fecha_inscripcion', 'estudiante']
