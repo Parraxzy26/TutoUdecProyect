@@ -20,6 +20,9 @@ import TutorDetailScreen from '../screens/main/TutorDetailScreen';
 import MateriasScreen from '../screens/main/MateriasScreen';
 import TutoriasScreen from '../screens/main/TutoriasScreen';
 import ProfileScreen from '../screens/main/ProfileScreen';
+import ChatbotScreen from '../screens/main/ChatbotScreen';
+import CreateTutoriaScreen from '../screens/main/CreateTutoriaScreen';
+import MateriaDetailScreen from '../screens/main/MateriaDetailScreen';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -90,6 +93,17 @@ const MainTabNavigator = () => (
       }}
     />
     <Tab.Screen
+      name="Add"
+      component={CreateTutoriaScreen}
+      options={{
+        tabBarIcon: ({ color, focused }) => (
+          <View style={[styles.tabIcon, styles.tabIconAdd]}>
+            <MaterialCommunityIcons name="plus" size={28} color="#333" />
+          </View>
+        ),
+      }}
+    />
+    <Tab.Screen
       name="Tutorias"
       component={TutoriasScreen}
       options={{
@@ -111,13 +125,6 @@ const MainTabNavigator = () => (
         ),
       }}
     />
-    <Tab.Screen
-      name="Materias"
-      component={MateriasScreen}
-      options={{
-        tabBarButton: () => null,
-      }}
-    />
   </Tab.Navigator>
 );
 
@@ -137,6 +144,14 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 4,
   },
+  tabIconAdd: {
+    backgroundColor: '#FFD700',
+    shadowColor: '#FFD700',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
+  },
 });
 
 const AppNavigator = () => {
@@ -149,6 +164,12 @@ const AppNavigator = () => {
         <>
           <Stack.Screen name="Main" component={MainTabNavigator} />
           <Stack.Screen name="TutorDetail" component={TutorDetailScreen} />
+          <Stack.Screen name="Chatbot" component={ChatbotScreen} />
+          <Stack.Screen name="CreateTutoria" component={CreateTutoriaScreen} />
+          <Stack.Screen name="MateriaDetail" component={MateriaDetailScreen} />
+          <Stack.Screen name="Materias" component={MateriasScreen} />
+          <Stack.Screen name="Tutorias" component={TutoriasScreen} />
+          <Stack.Screen name="Tutores" component={TutoresScreen} />
         </>
       ) : (
         <Stack.Screen name="Auth" component={AuthNavigator} />
