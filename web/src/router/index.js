@@ -51,11 +51,6 @@ const router = createRouter({
           component: TutoriasView,
           meta: { requiresAuth: true },
         },
-        {
-          path: 'about',
-          name: 'about',
-          component: () => import('../views/Aboutview.vue'),
-        },
       ],
     },
   ],
