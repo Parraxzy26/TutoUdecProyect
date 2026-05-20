@@ -83,7 +83,7 @@ export default function HomeScreen({ navigation }) {
       >
       <View style={styles.welcomeRow}>
         <View style={{ flex: 1 }}>
-          <Text style={styles.welcomeKicker}>WELCOME BACK,</Text>
+          <Text style={styles.welcomeKicker}>BIENVENIDO DE NUEVO,</Text>
           <Text style={styles.welcomeName}>{displayName}!</Text>
         </View>
       </View>
@@ -92,7 +92,7 @@ export default function HomeScreen({ navigation }) {
         <MaterialCommunityIcons name="magnify" size={22} color={C.outline} style={styles.searchIcon} />
         <TextInput
           style={styles.searchInput}
-          placeholder="Search subjects or tutors..."
+          placeholder="Buscar materias o tutores..."
           placeholderTextColor={C.outline}
           value={search}
           onChangeText={setSearch}
@@ -104,9 +104,9 @@ export default function HomeScreen({ navigation }) {
       </View>
 
       <View style={styles.sectionHead}>
-        <Text style={styles.sectionTitle}>Your Learning Path</Text>
+        <Text style={styles.sectionTitle}>Tu Ruta de Aprendizaje</Text>
         <TouchableOpacity onPress={() => navigation.navigate('Materias')}>
-          <Text style={styles.link}>View all</Text>
+          <Text style={styles.link}>Ver todo</Text>
         </TouchableOpacity>
       </View>
 
@@ -131,14 +131,14 @@ export default function HomeScreen({ navigation }) {
                 <Text style={styles.pathIconText}>{item.nombre.charAt(0)}</Text>
               </View>
               <View style={styles.badgeActive}>
-                <Text style={styles.badgeActiveText}>ACTIVE</Text>
+                <Text style={styles.badgeActiveText}>ACTIVO</Text>
               </View>
             </View>
             <Text style={styles.pathTitle} numberOfLines={2}>
               {item.nombre}
             </Text>
             <Text style={styles.pathSub}>
-              {item.total_tutorias ?? 0} sessions completed
+              {item.total_tutorias ?? 0} sesiones completadas
             </Text>
           </TouchableOpacity>
         )}
@@ -148,9 +148,9 @@ export default function HomeScreen({ navigation }) {
       />
 
       <View style={styles.sectionHead}>
-        <Text style={styles.sectionTitle}>Your Upcoming Tutorias</Text>
+        <Text style={styles.sectionTitle}>Tus Próximas Tutorías</Text>
         <TouchableOpacity onPress={() => navigation.navigate('Tutorias')}>
-          <Text style={styles.link}>Calendar</Text>
+          <Text style={styles.link}>Calendario</Text>
         </TouchableOpacity>
       </View>
 
@@ -177,7 +177,7 @@ export default function HomeScreen({ navigation }) {
               <View style={{ flex: 1 }}>
                 <Text style={styles.sessionTitle}>{t.materia_nombre || 'Tutoria'}</Text>
                 <Text style={styles.sessionMeta}>
-                  {d ? d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }) : ''} - {t.duracion_minutos ? new Date(d.getTime() + t.duracion_minutos*60000).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }) : ''}
+                  {d ? d.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', hour12: false }) : ''} - {t.duracion_minutos ? new Date(d.getTime() + t.duracion_minutos*60000).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', hour12: false }) : ''}
                 </Text>
                 <Text style={styles.sessionMeta}>
                   {t.lugar || 'Online'}
@@ -189,7 +189,7 @@ export default function HomeScreen({ navigation }) {
                   <View style={styles.tutorBadge} />
                 </View>
                 <View style={[styles.smallBtn, { backgroundColor: '#006D32' }]}>
-                  <Text style={styles.smallBtnText}>JOIN SESSION</Text>
+                  <Text style={styles.smallBtnText}>UNIRSE</Text>
                 </View>
               </View>
             </TouchableOpacity>
@@ -199,12 +199,12 @@ export default function HomeScreen({ navigation }) {
 
       <View style={styles.helpCenter}>
         <View style={styles.helpTextContainer}>
-          <Text style={styles.helpTitle}>Tutor Help Center</Text>
+          <Text style={styles.helpTitle}>Centro de Ayuda TutoUdec</Text>
           <Text style={styles.helpDesc}>
-            Access pedagogy resources, manage your payment methods, or contact technical support for your digital classroom.
+            Accede a recursos pedagógicos, gestiona tus métodos de pago o contacta soporte técnico para tu aula digital.
           </Text>
-          <TouchableOpacity style={styles.helpBtn}>
-            <Text style={styles.helpBtnText}>Get Support Now →</Text>
+          <TouchableOpacity style={styles.helpBtn} onPress={() => navigation.navigate('Chatbot')}>
+            <Text style={styles.helpBtnText}>Obtener ayuda →</Text>
           </TouchableOpacity>
         </View>
         <View style={styles.helpIconBox}>
@@ -213,7 +213,7 @@ export default function HomeScreen({ navigation }) {
       </View>
 
       <View style={styles.sectionHead}>
-        <Text style={styles.sectionTitle}>Top Rated Tutors</Text>
+        <Text style={styles.sectionTitle}>Tutores Mejor Calificados</Text>
       </View>
       {tutores.slice(0, 2).map((tutor) => (
         <TouchableOpacity
@@ -229,30 +229,22 @@ export default function HomeScreen({ navigation }) {
             <View style={{ flex: 1 }}>
               <Text style={styles.tutorName}>{tutor.usuario_nombre || 'Tutor'}</Text>
               <View style={styles.tagRow}>
-                <View style={styles.tag}><Text style={styles.tagText}>MATH</Text></View>
-                <View style={styles.tag}><Text style={styles.tagText}>STATS</Text></View>
+                <View style={styles.tag}><Text style={styles.tagText}>MATE</Text></View>
+                <View style={styles.tag}><Text style={styles.tagText}>ESTAD</Text></View>
               </View>
               <View style={styles.starRow}>
                 <MaterialCommunityIcons name="star" size={16} color="#FBC02D" />
                 <Text style={styles.starText}>
-                  {Number(tutor.calificacion ?? 0).toFixed(1)} ({tutor.total_tutorias ?? 0} reviews)
+                  {Number(tutor.calificacion ?? 0).toFixed(1)} ({tutor.total_tutorias ?? 0} reseñas)
                 </Text>
               </View>
             </View>
             <TouchableOpacity style={styles.viewProfileBtn}>
-              <Text style={styles.viewProfileBtnText}>View Profile</Text>
+              <Text style={styles.viewProfileBtnText}>Ver Perfil</Text>
             </TouchableOpacity>
           </View>
         </TouchableOpacity>
       ))}
-
-      <TouchableOpacity
-        style={styles.fabYellow}
-        onPress={() => navigation.navigate('Tutores')}
-        activeOpacity={0.9}
-      >
-        <MaterialCommunityIcons name="plus" size={32} color="#333" />
-      </TouchableOpacity>
       </ScrollView>
     </View>
   );
@@ -377,21 +369,5 @@ const styles = StyleSheet.create({
   starText: { fontSize: 12, color: '#999', fontWeight: '600' },
   viewProfileBtn: { backgroundColor: '#F0F0F0', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 12 },
   viewProfileBtnText: { fontSize: 10, fontWeight: 'bold', color: '#333' },
-  fabYellow: {
-    position: 'absolute', 
-    bottom: 110,
-    right: 20,
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: '#FFD700',
-    justifyContent: 'center', 
-    alignItems: 'center',
-    elevation: 8,
-    shadowColor: '#000',
-    shadowOpacity: 0.2, 
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 4 },
-  },
   emptyHint: { fontSize: 14, color: '#999', fontStyle: 'italic', marginVertical: 12 },
 });

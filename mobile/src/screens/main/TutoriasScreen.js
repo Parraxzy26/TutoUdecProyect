@@ -121,7 +121,7 @@ export default function TutoriasScreen({ navigation }) {
         contentContainerStyle={styles.content}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
-      <Text style={styles.kicker}>ACADEMIC SCHEDULE</Text>
+      <Text style={styles.kicker}>HORARIO ACADÉMICO</Text>
       <Text style={styles.monthTitle}>{monthLabel}</Text>
 
       <View style={styles.calCard}>
@@ -156,8 +156,8 @@ export default function TutoriasScreen({ navigation }) {
 
       <View style={styles.statsBanner}>
         <View style={styles.statsTextContainer}>
-          <Text style={styles.statsLbl}>Scheduled this month</Text>
-          <Text style={styles.statsNum}>{items.length} Sessions</Text>
+          <Text style={styles.statsLbl}>Programadas este mes</Text>
+          <Text style={styles.statsNum}>{items.length} Sesiones</Text>
         </View>
         <View style={styles.statsIcon}>
           <MaterialCommunityIcons name="calendar-check" size={24} color="#fff" />
@@ -167,51 +167,51 @@ export default function TutoriasScreen({ navigation }) {
       <View style={styles.summaryCard}>
         <View style={styles.summaryItem}>
           <Text style={styles.summaryNum}>{items.filter(i => i.estado === 'completada').length}</Text>
-          <Text style={styles.summaryLbl}>Completed</Text>
+          <Text style={styles.summaryLbl}>Completadas</Text>
         </View>
         <View style={styles.summaryDivider} />
         <View style={styles.summaryItem}>
           <Text style={styles.summaryNum}>{items.filter(i => i.estado === 'pendiente').length}</Text>
-          <Text style={styles.summaryLbl}>Pending</Text>
+          <Text style={styles.summaryLbl}>Pendientes</Text>
         </View>
         <View style={styles.summaryDivider} />
         <View style={styles.summaryItem}>
           <Text style={styles.summaryNum}>{items.filter(i => i.estado === 'cancelada').length}</Text>
-          <Text style={styles.summaryLbl}>Cancelled</Text>
+          <Text style={styles.summaryLbl}>Canceladas</Text>
         </View>
       </View>
 
       <View style={styles.agendaHead}>
         <View>
-          <Text style={styles.kickerSmall}>UPCOMING AGENDA</Text>
+          <Text style={styles.kickerSmall}>AGENDA PRÓXIMA</Text>
           <Text style={styles.agendaTitle}>
             {selected.toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'short' })}
           </Text>
         </View>
         <TouchableOpacity style={styles.listBtn} onPress={() => navigation.navigate('Tutores')}>
-          <Text style={styles.listBtnText}>View List</Text>
+          <Text style={styles.listBtnText}>Ver Lista</Text>
           <MaterialCommunityIcons name="format-list-bulleted" size={18} color="#333" />
         </TouchableOpacity>
       </View>
 
       {agenda.length === 0 ? (
         <View style={styles.noMoreBox}>
-          <Text style={styles.noMoreText}>No sessions for this day.</Text>
+          <Text style={styles.noMoreText}>No hay sesiones para este día.</Text>
           <TouchableOpacity onPress={() => navigation.navigate('Tutores')}>
-            <Text style={styles.browseLink}>Browse available tutors →</Text>
+            <Text style={styles.browseLink}>Explorar tutores disponibles →</Text>
           </TouchableOpacity>
         </View>
       ) : (
         agenda.map((item) => {
           const startTime = item.fecha_inicio ? new Date(item.fecha_inicio) : null;
-          const timeStr = startTime ? startTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }) : '--:--';
+          const timeStr = startTime ? startTime.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', hour12: false }) : '--:--';
           const isOnline = item.lugar?.toLowerCase().includes('google') || item.lugar?.toLowerCase().includes('online');
           
           return (
             <View key={item.id} style={styles.agendaCard}>
               <View style={styles.timeBoxLarge}>
                 <Text style={styles.timeTxtLarge}>{timeStr}</Text>
-                <Text style={styles.durTxtSmall}>{item.duracion_minutos || 60}M</Text>
+                <Text style={styles.durTxtSmall}>{item.duracion_minutos || 60}MIN</Text>
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={styles.agendaNameLarge}>{item.materia_nombre || 'Tutoria'}</Text>
@@ -222,7 +222,7 @@ export default function TutoriasScreen({ navigation }) {
                     color="#34A853" 
                   />
                   <Text style={styles.agendaMetaSmall}>{item.lugar || 'UDEC Campus'}</Text>
-                  {isOnline && <View style={styles.onlineBadge}><Text style={styles.onlineBadgeText}>ONLINE</Text></View>}
+                  {isOnline && <View style={styles.onlineBadge}><Text style={styles.onlineBadgeText}>EN LÍNEA</Text></View>}
                 </View>
               </View>
               <View style={{ alignItems: 'flex-end', gap: 8 }}>
@@ -236,14 +236,14 @@ export default function TutoriasScreen({ navigation }) {
                   style={[styles.detailsBtn, item.estado === 'pendiente' && { backgroundColor: '#006D32' }]}
                   onPress={() => {
                     if (item.estado === 'pendiente') {
-                      Alert.alert('Join Session', 'Redirigiendo a la sala virtual...');
+                      Alert.alert('Unirse a Sesión', 'Redirigiendo a la sala virtual...');
                     } else {
                       // Show details
                     }
                   }}
                 >
                   <Text style={styles.detailsBtnText}>
-                    {item.estado === 'pendiente' ? 'JOIN SESSION' : 'DETAILS'}
+                    {item.estado === 'pendiente' ? 'UNIRSE' : 'DETALLES'}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -254,14 +254,14 @@ export default function TutoriasScreen({ navigation }) {
 
       {agenda.length > 0 && (
         <View style={styles.noMoreBox}>
-          <Text style={styles.noMoreText}>No more sessions for today.</Text>
+          <Text style={styles.noMoreText}>No hay más sesiones para hoy.</Text>
           <TouchableOpacity onPress={() => navigation.navigate('Tutores')}>
-            <Text style={styles.browseLink}>Browse available tutors →</Text>
+            <Text style={styles.browseLink}>Explorar tutores disponibles →</Text>
           </TouchableOpacity>
         </View>
       )}
 
-      <TouchableOpacity style={styles.fabYellow} onPress={() => navigation.navigate('Tutores')}>
+      <TouchableOpacity style={styles.fabYellow} onPress={() => navigation.navigate('Add')}>
         <MaterialCommunityIcons name="plus" size={28} color="#333" />
       </TouchableOpacity>
       </ScrollView>
@@ -378,6 +378,83 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 10,
     elevation: 2,
+  },
+  timeBoxLarge: {
+    width: 70,
+    height: 60,
+    backgroundColor: '#F0F0F0',
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
+  },
+  timeTxtLarge: { fontSize: 18, fontWeight: 'bold', color: '#34A853' },
+  durTxtSmall: { fontSize: 10, color: '#999', marginTop: 2 },
+  agendaNameLarge: { fontSize: 16, fontWeight: 'bold', color: '#333' },
+  locationRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: 4,
+  },
+  agendaMetaSmall: { fontSize: 12, color: '#999' },
+  onlineBadge: {
+    backgroundColor: '#E8F5E9',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
+    marginLeft: 8,
+  },
+  onlineBadgeText: { fontSize: 8, fontWeight: 'bold', color: '#34A853' },
+  tutorRowSmall: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  avatarTiny: { width: 20, height: 20, borderRadius: 10 },
+  tutorPillSmall: {
+    backgroundColor: '#F0F0F0',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  tutorPillText: { fontSize: 10, color: '#333', fontWeight: 'bold' },
+  detailsBtn: {
+    backgroundColor: '#F0F0F0',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 12,
+  },
+  detailsBtnText: { fontSize: 10, fontWeight: 'bold', color: '#fff' },
+  noMoreBox: {
+    alignItems: 'center',
+    paddingVertical: 40,
+  },
+  noMoreText: {
+    fontSize: 14,
+    color: '#999',
+    marginBottom: 12,
+  },
+  browseLink: {
+    fontSize: 14,
+    color: '#34A853',
+    fontWeight: 'bold',
+  },
+  fabYellow: {
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: '#FFD700',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#FFD700',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
   },
   timeBox: {
     width: 60,
