@@ -3,7 +3,7 @@ from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 from django.contrib.auth.models import Group, Permission, User
 from django.contrib.contenttypes.models import ContentType
 
-from .models import Disponibilidad, Materia, Resena, Tutor, Tutoria
+from .models import Disponibilidad, Materia, Resena, Tutor, Tutoria, GrupoTutoria, InscripcionGrupo, PasswordResetToken, UserProfile
 
 
 def _ensure_tutores_group() -> Group:
@@ -140,3 +140,35 @@ class UserAdmin(DjangoUserAdmin):
         "is_active",
     )
     list_filter = ("is_staff", "is_superuser", "is_active", "groups")
+
+
+@admin.register(GrupoTutoria)
+class GrupoTutoriaAdmin(admin.ModelAdmin):
+    list_display = ('nombre', 'tutor', 'materia', 'cupos_maximos', 'cupos_disponibles', 'modalidad', 'estado', 'fecha_inicio')
+    list_filter = ('modalidad', 'estado', 'materia', 'fecha_inicio')
+    search_fields = ('nombre', 'descripcion', 'tutor__usuario__username', 'materia__nombre')
+    readonly_fields = ('creado_en', 'actualizado_en', 'duracion_minutos')
+    filter_horizontal = ()
+
+
+@admin.register(InscripcionGrupo)
+class InscripcionGrupoAdmin(admin.ModelAdmin):
+    list_display = ('grupo', 'estudiante', 'estado', 'asistio', 'fecha_inscripcion')
+    list_filter = ('estado', 'asistio', 'fecha_inscripcion')
+    search_fields = ('grupo__nombre', 'estudiante__username', 'estudiante__first_name', 'estudiante__last_name')
+    readonly_fields = ('fecha_inscripcion',)
+
+
+@admin.register(PasswordResetToken)
+class PasswordResetTokenAdmin(admin.ModelAdmin):
+    list_display = ('user', 'token', 'created_at', 'expires_at', 'used')
+    list_filter = ('used', 'created_at', 'expires_at')
+    search_fields = ('user__username', 'user__email', 'token')
+    readonly_fields = ('token', 'created_at', 'expires_at')
+
+
+@admin.register(UserProfile)
+class UserProfileAdmin(admin.ModelAdmin):
+    list_display = ('user', 'phone_number', 'email_verified', 'phone_verified')
+    list_filter = ('email_verified', 'phone_verified')
+    search_fields = ('user__username', 'user__email', 'phone_number')
