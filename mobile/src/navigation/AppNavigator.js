@@ -12,6 +12,7 @@ import { C } from '../theme/colors';
 import LoginScreen from '../screens/auth/LoginScreen';
 import RegisterScreen from '../screens/auth/RegisterScreen';
 import ForgotPasswordScreen from '../screens/auth/ForgotPasswordScreen';
+import ChangePasswordScreen from '../screens/auth/ChangePasswordScreen';
 
 import HomeScreen from '../screens/main/HomeScreen';
 import TutorHomeScreen from '../screens/main/TutorHomeScreen';
@@ -170,6 +171,7 @@ const AppNavigator = () => {
           <Stack.Screen name="Materias" component={MateriasScreen} />
           <Stack.Screen name="Tutorias" component={TutoriasScreen} />
           <Stack.Screen name="Tutores" component={TutoresScreen} />
+          <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} />
         </>
       ) : (
         <Stack.Screen name="Auth" component={AuthNavigator} />

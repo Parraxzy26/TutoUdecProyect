@@ -39,7 +39,7 @@ export default function ProfileScreen({ navigation }) {
   };
 
   const handleSecurityPassword = () => {
-    Alert.alert('Seguridad', 'Aquí podrías cambiar tu contraseña y configurar la seguridad de tu cuenta');
+    navigation.navigate('ChangePassword');
   };
 
   const handleNotifications = () => {
