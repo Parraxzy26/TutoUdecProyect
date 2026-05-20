@@ -203,6 +203,46 @@ class AuthViewSet(viewsets.ViewSet):
             status=status.HTTP_200_OK
         )
 
+    @action(detail=False, methods=['post'], permission_classes=[IsAuthenticated])
+    def change_password(self, request):
+        """Cambiar contraseña del usuario autenticado"""
+        old_password = request.data.get('old_password')
+        new_password = request.data.get('new_password')
+        confirm_password = request.data.get('confirm_password')
+        
+        if not old_password or not new_password or not confirm_password:
+            return Response(
+                {'detail': 'Se requiere contraseña actual y nueva contraseña'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        if new_password != confirm_password:
+            return Response(
+                {'detail': 'Las nuevas contraseñas no coinciden'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        if len(new_password) < 6:
+            return Response(
+                {'detail': 'La nueva contraseña debe tener al menos 6 caracteres'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        user = request.user
+        if not user.check_password(old_password):
+            return Response(
+                {'detail': 'La contraseña actual es incorrecta'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        user.set_password(new_password)
+        user.save()
+        
+        return Response(
+            {'detail': 'Contraseña cambiada exitosamente'},
+            status=status.HTTP_200_OK
+        )
+    
     @action(detail=False, methods=['post'])
     def confirm_password_reset(self, request):
         """Confirmar restablecimiento de contraseña con token"""
@@ -548,12 +588,12 @@ class ChatbotViewSet(viewsets.ViewSet):
         'tutorias': [
             'tutoria', 'tutorías', 'tutorias', 'tutor', 'tutores', 'clases particulares', 
             'ayuda academica', 'ayuda académica', 'clase', 'sesion', 'sesión', 
-            'agendar', 'reservar', 'pedir tutoria'
+            'agendar', 'reservar', 'pedir tutoria', 'cancelar tutoria', 'cambiar horario'
         ],
         'materias': [
             'materia', 'materias', 'asignatura', 'asignaturas', 'curso', 'cursos', 
             'cálculo', 'algebra', 'física', 'química', 'programación', 'estadística', 
-            'economía', 'ingles', 'matemáticas'
+            'economía', 'ingles', 'matemáticas', 'biología', 'filosofía', 'historia'
         ],
         'horarios': [
             'horario', 'horarios', 'disponibilidad', 'cuándo', 'qué días', 'cuando', 
@@ -561,7 +601,7 @@ class ChatbotViewSet(viewsets.ViewSet):
         ],
         'costos': [
             'precio', 'costo', 'tarifa', 'cuánto cuesta', 'cuanto cuesta', 'dinero', 
-            'pago', 'pagos', 'valor', 'cuánto', 'cuanto', 'gratis', 'subsidio'
+            'pago', 'pagos', 'valor', 'cuánto', 'cuanto', 'gratis', 'subsidio', 'descuento'
         ],
         'soporte': [
             'ayuda', 'soporte', 'problema', 'error', 'no funciona', 'ayudar', 
@@ -570,7 +610,7 @@ class ChatbotViewSet(viewsets.ViewSet):
         ],
         'contacto': [
             'contacto', 'contactar', 'teléfono', 'telefono', 'correo', 'email', 
-            'dirección', 'direccion', 'oficina', 'ubicación', 'ubicacion', 'llamar'
+            'dirección', 'direccion', 'oficina', 'ubicación', 'ubicacion', 'llamar', 'redes sociales'
         ],
         'despedida': [
             'adiós', 'adios', 'chau', 'hasta luego', 'gracias', 'muchas gracias', 
@@ -579,11 +619,28 @@ class ChatbotViewSet(viewsets.ViewSet):
         'login': [
             'login', 'iniciar sesion', 'iniciar sesión', 'entrar', 'acceder', 
             'no puedo entrar', 'no puedo iniciar sesión', 'contraseña olvidada', 
-            'olvide mi contraseña', 'olvidé mi contraseña', 'recuperar contraseña'
+            'olvide mi contraseña', 'olvidé mi contraseña', 'recuperar contraseña',
+            'cambiar contraseña', 'contraseña nueva'
         ],
         'perfil': [
             'perfil', 'mi perfil', 'editar perfil', 'actualizar perfil', 'cambiar datos', 
-            'datos personales', 'informacion personal', 'información personal'
+            'datos personales', 'informacion personal', 'información personal', 'foto de perfil'
+        ],
+        'tutor': [
+            'ser tutor', 'cómo ser tutor', 'como ser tutor', 'requisitos tutor',
+            'inscribirse como tutor', 'registrarse como tutor', 'perfil de tutor'
+        ],
+        'pago': [
+            'pagar', 'método de pago', 'metodo de pago', 'efectivo', 'transferencia',
+            'nequi', 'daviplata', 'cómo pagar', 'como pagar', 'factura'
+        ],
+        'calificacion': [
+            'calificar', 'calificación', 'calificacion', 'reseña', 'resena',
+            'cómo calificar', 'como calificar', 'puntuación', 'puntuacion', 'estrellas'
+        ],
+        'seguridad': [
+            'seguridad', 'privacidad', 'datos personales', 'contraseña segura',
+            'cuenta segura', 'protección', 'proteccion'
         ]
     }
 
@@ -609,10 +666,12 @@ class ChatbotViewSet(viewsets.ViewSet):
             'Las tutorías en TutoUdec son sesiones personalizadas donde un tutor calificado te ayudará con tus dudas académicas. Puedes buscar tutores por materia o nombre.',
             'Para agendar una tutoría: 1) Busca un tutor disponible, 2) Selecciona un horario que te convenga, 3) Confirma tu reserva.',
             'Los tutores son estudiantes avanzados o profesionales con experiencia en sus áreas. Todos son verificados por la universidad.',
-            'Puedes crear una nueva tutoría tocando el botón + en la barra inferior de la aplicación.'
+            'Puedes crear una nueva tutoría tocando el botón + en la barra inferior de la aplicación.',
+            'Si necesitas cancelar una tutoría, ve a la sección de "Tutorias", selecciona la tutoría y toca el botón de cancelar.',
+            'Recuerda que debes cancelar con al menos 2 horas de anticipación para evitar penalizaciones.'
         ],
         'materias': [
-            'Ofrecemos tutorías en una amplia variedad de materias: Cálculo, Álgebra, Física, Química, Programación, Estadística, Economía, Inglés y muchas más.',
+            'Ofrecemos tutorías en una amplia variedad de materias: Cálculo, Álgebra, Física, Química, Programación, Estadística, Economía, Inglés, Biología, Filosofía, Historia y muchas más.',
             'Puedes ver todas las materias disponibles en la sección "Materias" de la aplicación. Si no encuentras la que necesitas, ¡avísanos!',
             'Cada materia tiene múltiples tutores disponibles para que elijas el que mejor se adapte a tu estilo de aprendizaje.',
             'Las materias más populares son: Cálculo I y II, Física Mecánica, Programación Básica, Álgebra Lineal y Estadística.'
@@ -627,7 +686,8 @@ class ChatbotViewSet(viewsets.ViewSet):
             'Los precios varían según el tutor y la materia. Puedes ver la tarifa por hora en el perfil de cada tutor.',
             'Algunas tutorías pueden ser gratuitas o subsidiadas por la universidad. ¡Revisa los detalles!',
             'El pago se realiza directamente con el tutor o a través de la plataforma, según lo acordado.',
-            'Las tarifas típicas están entre $20,000 y $50,000 pesos colombianos por hora. Los tutores expertos pueden cobrar más.'
+            'Las tarifas típicas están entre $20,000 y $50,000 pesos colombianos por hora. Los tutores expertos pueden cobrar más.',
+            'Siempre pregunta por descuentos o paquetes de varias tutorías, muchos tutores ofrecen precios especiales.'
         ],
         'soporte': [
             'Estoy aquí para ayudarte. ¿Qué problema estás experimentando? Cuéntame los detalles para poder ayudarte mejor.',
@@ -639,7 +699,8 @@ class ChatbotViewSet(viewsets.ViewSet):
             'Puedes contactarnos a través de: Correo: tutoudec.soporte@gmail.com, Teléfono: +57 1 234 5678, o visitarnos en el campus principal.',
             'Nuestro horario de atención es de lunes a viernes de 8:00 AM a 6:00 PM.',
             'La oficina de soporte está ubicada en el edificio A, sala 101 del campus principal de la UdeC en Fusagasugá.',
-            'Si prefieres, también puedes contactarnos a través de nuestras redes sociales: @TutoUdec en Instagram y Facebook.'
+            'Si prefieres, también puedes contactarnos a través de nuestras redes sociales: @TutoUdec en Instagram y Facebook.',
+            'Síguenos en redes sociales para estar al tanto de noticias, consejos y nuevas funcionalidades de TutoUdec!'
         ],
         'despedida': [
             '¡De nada! Un gusto ayudarte. ¡Éxito en tus estudios!',
@@ -651,19 +712,49 @@ class ChatbotViewSet(viewsets.ViewSet):
             'Para iniciar sesión, ve a la pantalla de "Iniciar Sesión" e ingresa tu nombre de usuario o correo y tu contraseña.',
             'Si olvidaste tu contraseña, toca en "¿Olvidaste tu contraseña?" y sigue las instrucciones para restablecerla.',
             'Asegúrate de que tu conexión a internet esté activa y que estás usando las credenciales correctas.',
-            'Si sigue sin funcionar, verifica que no tengas mayúsculas activadas o espacios extra en tu usuario o contraseña.'
+            'Si sigue sin funcionar, verifica que no tengas mayúsculas activadas o espacios extra en tu usuario o contraseña.',
+            'Para cambiar tu contraseña, ve a tu perfil y selecciona la opción "Seguridad y Contraseña".'
         ],
         'perfil': [
             'Para ver o editar tu perfil, ve a la sección "Perfil" en la barra inferior de la aplicación.',
             'En tu perfil puedes cambiar tu foto, actualizar tus datos personales y ver tu historial de tutorías.',
             'Si eres tutor, también puedes gestionar tu disponibilidad y tus materias desde tu perfil.',
-            'Recuerda mantener tu información actualizada para que los demás usuarios puedan conocerte mejor.'
+            'Recuerda mantener tu información actualizada para que los demás usuarios puedan conocerte mejor.',
+            'Tu foto de perfil ayuda a los demás usuarios a reconocerte, así que elige una imagen clara y profesional.'
+        ],
+        'tutor': [
+            '¡Ser tutor es una excelente oportunidad para compartir tus conocimientos y ganar dinero!',
+            'Para ser tutor, debes ser estudiante avanzado o egresado de la UdeC, tener buenas calificaciones y pasar un proceso de selección.',
+            'Los requisitos para ser tutor son: promedio mínimo de 3.5, disponibilidad horaria y conocimientos sólidos en al menos una materia.',
+            'Si quieres inscribirte como tutor, ve a la sección de registro y selecciona la opción "Soy tutor".',
+            'Como tutor, puedes establecer tus propios horarios y tarifas, y ayudar a otros estudiantes a tener éxito académico.'
+        ],
+        'pago': [
+            'Los métodos de pago varían según el tutor. La mayoría acepta efectivo, transferencias bancarias, Nequi o Daviplata.',
+            'Siempre acuerda el método de pago con tu tutor antes de la tutoría para evitar malentendidos.',
+            'Si pagas por transferencia, guarda el comprobante de pago y compártelo con tu tutor.',
+            'Recuerda que el pago se realiza después de la tutoría, a menos que hayas acordado lo contrario con tu tutor.',
+            'Si tienes problemas con el pago, contacta a soporte técnico a través de tutoudec.soporte@gmail.com.'
+        ],
+        'calificacion': [
+            'Calificar a tu tutor es muy importante para ayudar a otros estudiantes a tomar decisiones.',
+            'Para calificar a un tutor, ve a la sección de "Tutorias", selecciona la tutoría completada y toca el botón de calificar.',
+            'Puedes calificar del 1 al 5 estrellas y dejar un comentario sobre tu experiencia con el tutor.',
+            'Las calificaciones ayudan a mantener la calidad de los tutores en la plataforma.',
+            'Recuerda ser honesto y constructivo en tu reseña, ¡esto ayuda a mejorar la comunidad!'
+        ],
+        'seguridad': [
+            'Tu seguridad y privacidad son nuestra prioridad. Nunca compartas tu contraseña con nadie.',
+            'Usa una contraseña segura: combina letras mayúsculas y minúsculas, números y símbolos.',
+            'No compartas información personal sensible (como números de tarjeta) en la plataforma.',
+            'Si notas actividad sospechosa en tu cuenta, cambia tu contraseña inmediatamente y contacta a soporte.',
+            'Recuerda cerrar sesión cuando uses dispositivos públicos o compartidos.'
         ],
         'default': [
             'Lo siento, no entiendo tu pregunta. ¿Podrías reformularla?',
             'Interesante. ¿Podrías ser más específico? Estoy aquí para ayudarte con TutoUdec y la UdeC.',
             'No tengo información sobre eso. ¿Podrías preguntar algo relacionado con las tutorías o la universidad?',
-            'Disculpa, no reconozco esa pregunta. Prueba preguntar sobre: tutorías, materias, inscripción, horarios, costos o la universidad.'
+            'Disculpa, no reconozco esa pregunta. Prueba preguntar sobre: tutorías, materias, inscripción, horarios, costos, seguridad o la universidad.'
         ]
     }
 
